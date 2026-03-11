@@ -1,13 +1,12 @@
-import { Button } from '@/components/ui/button'
-
+import { Button } from "@/components/ui/button";
 
 const page = () => {
   return (
-    <div >
-      <h1 className='text-red-500'>Hellow World</h1>
+    <div>
+      <h1 className="text-red-500">Hellow World</h1>
       <Button>Buttons</Button>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

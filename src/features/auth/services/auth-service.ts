@@ -2,7 +2,6 @@
 
 import { api } from "@/lib/api-factory";
 
-
 export interface UserProfile {
   id: string;
   name: string;
@@ -19,10 +18,10 @@ export interface RegisterInput {
 export const userService = {
   // 1. Add the Register function
   register: (data: RegisterInput) =>
-    api.API<UserProfile>('/api/auth/register', {
-      method: 'POST',
+    api.API<UserProfile>("/api/auth/register", {
+      method: "POST",
       body: JSON.stringify(data),
       // We usually don't cache registration attempts
-      cache: 'no-store', 
+      cache: "no-store",
     }),
 };
