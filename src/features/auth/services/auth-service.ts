@@ -1,27 +1,36 @@
 // services/user-service.ts
 
-import { api } from "@/lib/api-factory";
+import { api } from '@/lib/api-factory'
 
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-}
-
-// 1. Define the registration data structure
-export interface RegisterInput {
-  name: string;
-  email: string;
-  password?: string; // Optional depending on your backend
-}
+import type {
+    ILoginResponse,
+    IUserProfile,
+    IUserResponse,
+    SigninInputType,
+    SignupInputType,
+} from '../types/auth-type'
 
 export const userService = {
-  // 1. Add the Register function
-  register: (data: RegisterInput) =>
-    api.API<UserProfile>("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify(data),
-      // We usually don't cache registration attempts
-      cache: "no-store",
-    }),
-};
+    // 1. Add the Register function
+    register: (data: SignupInputType) =>
+        api.API<IUserProfile>('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            // We usually don't cache registration attempts
+            cache: 'no-store',
+        }),
+
+    login: (data: SigninInputType) =>
+        api.API<ILoginResponse>('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            // We usually don't cache registration attempts
+            cache: 'no-store',
+        }),
+
+    getMe: () =>
+        api.API<IUserResponse>('/api/user/current', {
+            method: 'GET',
+            cache: 'no-store', // Always get fresh data
+        }),
+}

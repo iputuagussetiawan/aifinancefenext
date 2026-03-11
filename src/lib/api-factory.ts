@@ -1,63 +1,64 @@
 // File: lib/api-factory.ts
-import "server-only";
-import { cookies } from "next/headers";
+import 'server-only'
+
+import { cookies } from 'next/headers'
 
 class FetchFactory {
-  /**
-   * Automatically gathers all cookies (including httpOnly)
-   * to forward them to the backend API.
-   */
-  private async getRequestConfig(): Promise<HeadersInit> {
-    const cookieStore = await cookies();
+    private async getRequestConfig(): Promise<HeadersInit> {
+        const cookieStore = await cookies()
 
-    // .toString() correctly formats all cookies into a single
-    // "name=value; name2=value2" string, including httpOnly ones.
-    const cookieHeader = cookieStore.toString();
+        // 🗝️ Get the specific token you saved in handleLogin
+        const token = cookieStore.get('session_token')?.value
+        const cookieHeader = cookieStore.toString()
 
-    return {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Cookie: cookieHeader,
-    };
-  }
+        const headers: HeadersInit = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Cookie: cookieHeader, // Forward all cookies
+        }
 
-  async API<T>(
-    endpoint: string,
-    options: RequestInit & { next?: NextFetchRequestConfig } = {},
-  ): Promise<T> {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+        // 🗝️ If a token exists, add it to the Authorization header
+        // Many backends prefer this over reading the Cookie header
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+            headers['Cookie'] = `session_token=${token}`
+        }
 
-    // Merge headers: Default + httpOnly Cookies + User Overrides
-    const defaultHeaders = await this.getRequestConfig();
-    const mergedHeaders = {
-      ...defaultHeaders,
-      ...options.headers,
-    };
-
-    const url = `${apiBaseUrl}${endpoint}`;
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: mergedHeaders,
-        // credentials: 'omit' is often safer when manually forwarding
-        // the Cookie header from server-to-server.
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw {
-          status: response.status,
-          message: errorData.message || "API Request Failed",
-        };
-      }
-
-      return (await response.json()) as T;
-    } catch (error) {
-      console.error(`Fetch error at ${url}:`, error);
-      throw error;
+        return headers
     }
-  }
+
+    async API<T>(
+        endpoint: string,
+        options: RequestInit & { next?: NextFetchRequestConfig } = {},
+    ): Promise<T> {
+        const apiBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL
+        const defaultHeaders = await this.getRequestConfig()
+
+        // Correctly merge headers while keeping the dynamic defaults
+        const mergedHeaders = {
+            ...defaultHeaders,
+            ...options.headers,
+        }
+
+        const url = `${apiBaseUrl}${endpoint}`
+
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: mergedHeaders,
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.message || `API Error ${response.status}`)
+            }
+
+            return (await response.json()) as T
+        } catch (error) {
+            console.error(`Fetch error at ${url}:`, error)
+            throw error
+        }
+    }
 }
 
-export const api = new FetchFactory();
+export const api = new FetchFactory()
