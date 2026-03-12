@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AnimatePresence, motion } from 'framer-motion' // 🗝️ Animation helpers
+import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Briefcase, User } from 'lucide-react'
 
 import { OnboardingCard } from '@/features/onboarding/components/onboarding-card'
