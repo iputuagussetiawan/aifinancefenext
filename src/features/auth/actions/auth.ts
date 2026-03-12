@@ -56,22 +56,28 @@ export async function handleLogin(data: SigninInputType) {
     }
 }
 
-export async function getCurrentUser(): Promise<IUserProfile | null> {
+export async function getCurrentUser(): Promise<IUserProfile> {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('accessToken')?.value
+
+    // 1. If no token, throw a specific error instead of returning null
+    if (!token) {
+        throw new Error('UNAUTHORIZED: No session token found')
+    }
+
     try {
-        const cookieStore = await cookies()
-        const token = cookieStore.get('accessToken')?.value
-        console.log(token)
-
-        // 🗝️ If there is no cookie, don't even bother calling the API
-        if (!token) return null
-
-        //Call the backend /me endpoint
         const result: IUserResponse = await userService.getMe()
 
+        // 2. Validate the API response
+        if (!result || !result.user) {
+            throw new Error('USER_NOT_FOUND: Backend returned empty user data')
+        }
+
         return result.user
-    } catch (error) {
-        // If the token is expired or invalid, the API will fail
+    } catch (error: any) {
         console.error('Failed to fetch current user:', error)
-        return null
+
+        // 3. Re-throw the error so the calling component knows it failed
+        throw new Error(error.message || 'FAILED_TO_GET_USER')
     }
 }

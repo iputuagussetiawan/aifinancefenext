@@ -14,6 +14,8 @@ import {
     SquareTerminal,
 } from 'lucide-react'
 
+import { useAuth } from '@/features/auth/context/auth-context'
+
 import { NavMain } from './nav-main'
 import { NavProjects } from './nav-projects'
 import { NavUser } from './nav-user'
@@ -151,6 +153,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const { user } = useAuth()
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
@@ -161,7 +164,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavProjects projects={data.projects} />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser user={user} />
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
