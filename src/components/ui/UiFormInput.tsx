@@ -5,7 +5,7 @@ import { Field, FieldLabel } from '@/components/ui/field' // Adjust paths
 import { Input } from '@/components/ui/input'
 
 interface UiFormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    label: string
+    label?: string
     error?: FieldError
     isSubmitting?: boolean
 }
@@ -14,7 +14,7 @@ export const UiFormInput = forwardRef<HTMLInputElement, UiFormInputProps>(
     ({ label, error, isSubmitting, id, className, ...props }, ref) => {
         return (
             <Field>
-                <FieldLabel htmlFor={id}>{label}</FieldLabel>
+                {label && <FieldLabel htmlFor={id}>{label}</FieldLabel>}
                 <Input
                     {...props}
                     id={id}

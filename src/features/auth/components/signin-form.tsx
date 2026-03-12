@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 
 import { GoogleSignInButton } from '@/components/google-sign-in'
 import { Button } from '@/components/ui/button'
-import { FieldGroup, FieldSeparator } from '@/components/ui/field'
+import { FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { UiFormInput } from '@/components/ui/UiFormInput'
 import { DASHBOARD_URL, SIGNUP_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -72,15 +72,25 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
                 />
 
                 {/* Password */}
-                <UiFormInput
-                    label="Password"
-                    id="password"
-                    type="password"
-                    placeholder="your password"
-                    isSubmitting={isSubmitting}
-                    error={errors.email}
-                    {...register('password')}
-                />
+                <div>
+                    <div className="mb-1 flex items-center">
+                        <FieldLabel htmlFor="password">Password</FieldLabel>
+                        <Link
+                            href="/forgot-password"
+                            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                        >
+                            Forgot your password?
+                        </Link>
+                    </div>
+                    <UiFormInput
+                        id="password"
+                        type="password"
+                        placeholder="your password"
+                        isSubmitting={isSubmitting}
+                        error={errors.email}
+                        {...register('password')}
+                    />
+                </div>
 
                 <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
                     {isSubmitting ? (
