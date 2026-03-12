@@ -1,6 +1,8 @@
 // middleware.ts
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { AUTH_COOKIE_NAME } from './lib/constants'
+
 export function middleware(request: NextRequest) {
     const { pathname, search } = request.nextUrl
 
@@ -13,7 +15,7 @@ export function middleware(request: NextRequest) {
 
     // 2. AUTH SETUP
     // Ensure this matches the name you set in handleLogin ('accessToken' or 'accessToken')
-    const token = request.cookies.get('accessToken')?.value
+    const token = request.cookies.get(AUTH_COOKIE_NAME)?.value
 
     const isAuthPage =
         pathname.startsWith('/signin') || pathname.startsWith('/register') || pathname === '/'

@@ -3,12 +3,14 @@ import 'server-only'
 
 import { cookies } from 'next/headers'
 
+import { AUTH_COOKIE_NAME } from './constants'
+
 class FetchFactory {
     private async getRequestConfig(): Promise<HeadersInit> {
         const cookieStore = await cookies()
 
         // 🗝️ Get the specific token you saved in handleLogin
-        const token = cookieStore.get('accessToken')?.value
+        const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
         const cookieHeader = cookieStore.toString()
 
         const headers: HeadersInit = {

@@ -14,8 +14,15 @@ const inter = Inter({
 })
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-    const user = await getCurrentUser()
-    console.log(user)
+    let user = null
+    try {
+        // Attempt to get the user
+        user = await getCurrentUser()
+    } catch (error) {
+        // If getCurrentUser throws 'UNAUTHORIZED', we just set user to null
+        // This allows the Login page to render instead of crashing the app
+        console.log('No active session found (User is logged out)')
+    }
     return (
         <html lang="en" className={inter.variable}>
             {/* Apply the font to the body */}

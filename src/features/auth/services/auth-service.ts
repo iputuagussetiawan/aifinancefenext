@@ -33,4 +33,10 @@ export const userService = {
             method: 'GET',
             cache: 'no-store', // Always get fresh data
         }),
+
+    logout: () =>
+        api.API<IUserResponse>('/api/auth/logout', {
+            method: 'POST',
+            cache: 'no-store', // Always get fresh data
+        }),
 }

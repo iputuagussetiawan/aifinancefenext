@@ -1,6 +1,9 @@
 'use server'
 
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+
+import { AUTH_COOKIE_NAME } from '@/lib/constants'
 
 import { userService } from '../services/auth-service'
 import type {
@@ -31,7 +34,7 @@ export async function handleLogin(data: SigninInputType) {
         // 3. Store the JWT in a secure HTTP-only cookie
         // This ensures the token cannot be stolen via JavaScript (XSS)
         const cookieStore = await cookies()
-        cookieStore.set('accessToken', access_token, {
+        cookieStore.set(AUTH_COOKIE_NAME, access_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -58,11 +61,12 @@ export async function handleLogin(data: SigninInputType) {
 
 export async function getCurrentUser(): Promise<IUserProfile> {
     const cookieStore = await cookies()
-    const token = cookieStore.get('accessToken')?.value
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
 
     // 1. If no token, throw a specific error instead of returning null
     if (!token) {
-        throw new Error('UNAUTHORIZED: No session token found')
+        // throw new Error('UNAUTHORIZED: No session token found')
+        console.log('No session token found')
     }
 
     try {
@@ -80,4 +84,18 @@ export async function getCurrentUser(): Promise<IUserProfile> {
         // 3. Re-throw the error so the calling component knows it failed
         throw new Error(error.message || 'FAILED_TO_GET_USER')
     }
+}
+
+export async function handleLogout() {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
+    if (token) {
+        try {
+            await userService.logout()
+        } catch (error) {
+            console.error('Backend logout notice failed:', error)
+        }
+    }
+    cookieStore.delete(AUTH_COOKIE_NAME)
+    redirect('/signin')
 }

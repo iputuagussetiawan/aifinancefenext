@@ -19,6 +19,8 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar'
 
+import { LogoutMenuItem } from './logout-menu-item'
+
 export function NavUser({
     user,
 }: {
@@ -91,10 +93,11 @@ export function NavUser({
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        {/* <DropdownMenuItem>
                             <LogOut />
                             Log out
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
+                        <LogoutMenuItem />
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>
