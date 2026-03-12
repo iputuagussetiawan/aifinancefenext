@@ -17,8 +17,23 @@ export const signinValidation = z.object({
     password: z.string().min(8, 'Password must be at least 2 characters'),
 })
 
+export const forgotPasswordValidation = z.object({
+    email: z.string().email({ message: 'Please enter a valid email address' }),
+})
+
+export const resetPasswordValidation = z.object({
+    password: z.string().min(8, 'Password must be at least 2 characters'),
+})
+
 export type SignupInputType = z.infer<typeof signupValidation>
 export type SigninInputType = z.infer<typeof signinValidation>
+export type ForgotPasswordInputType = z.infer<typeof forgotPasswordValidation>
+export type ResetPasswordInputType = z.infer<typeof resetPasswordValidation>
+
+export type ResetPasswordApiRequestType = {
+    password: string // The new password
+    verificationCode: string // The code/token from the URL
+}
 
 export interface IUserProfile {
     _id: string // 🗝️ Backend uses MongoDB style _id

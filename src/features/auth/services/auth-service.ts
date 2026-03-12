@@ -3,9 +3,11 @@
 import { api } from '@/lib/api-factory'
 
 import type {
+    ForgotPasswordInputType,
     ILoginResponse,
     IUserProfile,
     IUserResponse,
+    ResetPasswordApiRequestType,
     SigninInputType,
     SignupInputType,
 } from '../types/auth-type'
@@ -27,7 +29,18 @@ export const userService = {
             // We usually don't cache registration attempts
             cache: 'no-store',
         }),
-
+    forgotPassword: (data: ForgotPasswordInputType) =>
+        api.API<IUserResponse>('/api/auth/password/forgot', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            cache: 'no-store', // Always get fresh data
+        }),
+    resetPassword: (data: ResetPasswordApiRequestType) =>
+        api.API<IUserResponse>('/api/auth/password/reset', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            cache: 'no-store', // Always get fresh data
+        }),
     getMe: () =>
         api.API<IUserResponse>('/api/user/current', {
             method: 'GET',
