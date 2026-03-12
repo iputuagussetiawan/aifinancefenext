@@ -1,0 +1,5 @@
+export const AUTH_COOKIE_NAME = 'accessToken'
+export const SIGNUP_URL = '/signup'
+export const SIGNIN_URL = '/signin'
+export const SIGNOUT_URL = '/'
+export const DASHBOARD_URL = '/dashboard'

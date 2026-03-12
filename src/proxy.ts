@@ -1,22 +1,30 @@
 // middleware.ts
 import { NextResponse, type NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+import { AUTH_COOKIE_NAME } from './lib/constants'
+
+// 🗝️ Change: Export as default
+export default function middleware(request: NextRequest) {
     const { pathname, search } = request.nextUrl
 
     // 1. PROXY LOGIC
     if (pathname.startsWith('/api')) {
         const targetPath = pathname.replace(/^\/api/, '')
+        // Ensure BACKEND_URL doesn't have a trailing slash if targetPath starts with one
         const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000'
+
         return NextResponse.rewrite(new URL(`${BACKEND_URL}${targetPath}${search}`, request.url))
     }
 
     // 2. AUTH SETUP
-    // Ensure this matches the name you set in handleLogin ('session_token' or 'accessToken')
-    const token = request.cookies.get('session_token')?.value
+    const token = request.cookies.get(AUTH_COOKIE_NAME)?.value
 
     const isAuthPage =
-        pathname.startsWith('/signin') || pathname.startsWith('/register') || pathname === '/'
+        pathname.startsWith('/signin') ||
+        pathname.startsWith('/register') ||
+        pathname.startsWith('/signup') || // Added /signup to match your config
+        pathname === '/'
+
     const isDashboardPage = pathname.startsWith('/dashboard')
 
     // 3. LOGIC: If on Dashboard and NO token -> Send to Login
@@ -25,7 +33,6 @@ export function middleware(request: NextRequest) {
     }
 
     // 4. LOGIC: If on Login/Register and HAS token -> Send to Dashboard
-    // This fixes the "can access login again" bug
     if (isAuthPage && token) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
@@ -34,6 +41,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    // 🗝️ Must include login/register in the matcher for this to work!
-    matcher: ['/api/:path*', '/dashboard/:path*', '/signin', '/signup'],
+    // 🗝️ FIX: Added '/api/:path*' to the matcher so the proxy logic actually runs!
+    matcher: ['/api/:path*', '/dashboard/:path*', '/signin', '/signup', '/register'],
 }

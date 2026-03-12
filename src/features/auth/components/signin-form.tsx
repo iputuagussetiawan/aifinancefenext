@@ -1,12 +1,15 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation' // 🗝️ For redirecting after login
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
+import { GoogleSignInButton } from '@/components/google-sign-in'
 import { Button } from '@/components/ui/button'
-import { Field, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+import { FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
+import { UiFormInput } from '@/components/ui/UiFormInput'
+import { DASHBOARD_URL, SIGNUP_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 import { handleLogin } from '../actions/auth' // Ensure this exists
@@ -34,7 +37,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
         if (result.success) {
             // 🚀 Move the user to the dashboard or trading floor
             console.log(result.user)
-            router.push('/dashboard')
+            router.push(DASHBOARD_URL)
             router.refresh()
         } else {
             // 🗝️ If login fails, highlight both fields or show a specific message
@@ -58,45 +61,36 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
                 </div>
 
                 {/* Email */}
-                <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                        id="email"
-                        type="email"
-                        placeholder="m@example.com"
-                        {...register('email')}
-                        disabled={isSubmitting}
-                        className={
-                            errors.email ? 'border-destructive focus-visible:ring-destructive' : ''
-                        }
-                    />
-                </Field>
+                <UiFormInput
+                    label="Email Address"
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    isSubmitting={isSubmitting}
+                    error={errors.email}
+                    {...register('email')}
+                />
 
                 {/* Password */}
-                <Field>
-                    <div className="flex items-center justify-between">
+                <div>
+                    <div className="mb-1 flex items-center">
                         <FieldLabel htmlFor="password">Password</FieldLabel>
-                        <a href="/forgot-password" className="text-primary text-xs hover:underline">
-                            Forgot password?
-                        </a>
+                        <Link
+                            href="/forgot-password"
+                            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                        >
+                            Forgot your password?
+                        </Link>
                     </div>
-                    <Input
+                    <UiFormInput
                         id="password"
                         type="password"
+                        placeholder="your password"
+                        isSubmitting={isSubmitting}
+                        error={errors.email}
                         {...register('password')}
-                        disabled={isSubmitting}
-                        className={
-                            errors.password
-                                ? 'border-destructive focus-visible:ring-destructive'
-                                : ''
-                        }
                     />
-                    {errors.password && (
-                        <p className="text-destructive mt-1 text-xs font-medium">
-                            {errors.password.message}
-                        </p>
-                    )}
-                </Field>
+                </div>
 
                 <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
                     {isSubmitting ? (
@@ -111,16 +105,16 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
 
                 <FieldSeparator>Or login with</FieldSeparator>
 
-                <Button variant="outline" type="button" className="w-full" disabled={isSubmitting}>
-                    {/* Github Icon */}
-                    Login with GitHub
-                </Button>
+                <GoogleSignInButton />
 
                 <p className="text-muted-foreground mt-2 text-center text-sm">
                     Don&apos;t have an account?{' '}
-                    <a href="/signup" className="hover:text-primary underline underline-offset-4">
+                    <Link
+                        href={SIGNUP_URL}
+                        className="hover:text-primary underline underline-offset-4"
+                    >
                         Sign up
-                    </a>
+                    </Link>
                 </p>
             </FieldGroup>
         </form>

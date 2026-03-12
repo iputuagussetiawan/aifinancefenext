@@ -1,11 +1,17 @@
 'use server'
 
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+
+import { AUTH_COOKIE_NAME, SIGNIN_URL } from '@/lib/constants'
 
 import { userService } from '../services/auth-service'
 import type {
+    ForgotPasswordInputType,
     IUserProfile,
     IUserResponse,
+    ResetPasswordApiRequestType,
+    ResetPasswordInputType,
     SigninInputType,
     SignupInputType,
 } from '../types/auth-type'
@@ -31,7 +37,7 @@ export async function handleLogin(data: SigninInputType) {
         // 3. Store the JWT in a secure HTTP-only cookie
         // This ensures the token cannot be stolen via JavaScript (XSS)
         const cookieStore = await cookies()
-        cookieStore.set('session_token', access_token, {
+        cookieStore.set(AUTH_COOKIE_NAME, access_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -56,21 +62,82 @@ export async function handleLogin(data: SigninInputType) {
     }
 }
 
-export async function getCurrentUser(): Promise<IUserProfile | null> {
+export async function handleForgotPassword(data: ForgotPasswordInputType) {
     try {
-        const cookieStore = await cookies()
-        const token = cookieStore.get('session_token')?.value
+        // 2. Call your backend service
+        // Ensure 'forgotPassword' is implemented in your userService
+        await userService.forgotPassword(data)
 
-        // 🗝️ If there is no cookie, don't even bother calling the API
-        if (!token) return null
+        return {
+            success: true,
+            message: 'If an account exists with that email, a reset link has been sent.',
+        }
+    } catch (error: any) {
+        // 🗝️ Security Tip: Often better to return success even if email isn't found
+        // to prevent "Email Enumeration" attacks.
+        return {
+            success: false,
+            error: error.message || 'Failed to send reset email. Please try again later.',
+        }
+    }
+}
 
-        // Call the backend /me endpoint
+export async function handleResetPassword(data: ResetPasswordApiRequestType) {
+    try {
+        await userService.resetPassword(data)
+        return {
+            success: true,
+            message: 'Your password has been successfully updated. You can now log in.',
+        }
+    } catch (error: any) {
+        const errorMessage =
+            error.response?.data?.message || error.message || 'Failed to update password'
+        console.error('[RESET_PASSWORD_ERROR]:', error)
+        return {
+            success: false,
+            error: errorMessage,
+        }
+    }
+}
+
+export async function getCurrentUser(): Promise<IUserProfile | null> {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
+
+    // 1. If no token, return null so the UI can redirect to signin
+    if (!token) {
+        console.log('No session token found')
+        return null // 🗝️ Fix: Added return statement
+    }
+
+    try {
         const result: IUserResponse = await userService.getMe()
 
+        // 2. Validate the API response
+        if (!result || !result.user) {
+            console.error('USER_NOT_FOUND: Backend returned empty user data')
+            return null // 🗝️ Fix: Added return statement
+        }
+
         return result.user
-    } catch (error) {
-        // If the token is expired or invalid, the API will fail
+    } catch (error: any) {
         console.error('Failed to fetch current user:', error)
-        return null
+
+        // 3. Return null so the app doesn't crash, but knows the user isn't auth'd
+        return null // 🗝️ Fix: Added return statement to satisfy the return type
     }
+}
+
+export async function handleLogout() {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
+    if (token) {
+        try {
+            await userService.logout()
+        } catch (error) {
+            console.error('Backend logout notice failed:', error)
+        }
+    }
+    cookieStore.delete(AUTH_COOKIE_NAME)
+    redirect(SIGNIN_URL)
 }

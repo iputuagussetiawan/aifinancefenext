@@ -1,0 +1,20 @@
+{
+    "servers": {
+        "shadcn": {
+            "command": "npx",
+            "args": ["shadcn@latest", "mcp"],
+            "type": "stdio"
+        },
+        "my-mcp-server-d5b001b7": {
+            "type": "stdio",
+            "command": "Can",
+            "args": ["you", "add", "the", "GitHub", "SVG", "from", "SVGL", "registry?"]
+        },
+        "my-mcp-server-c60ec763": {
+            "type": "stdio",
+            "command": "Can",
+            "args": ["you", "add", "the", "google", "SVG", "from", "SVGL", "registry?"]
+        }
+    },
+    "inputs": []
+}
