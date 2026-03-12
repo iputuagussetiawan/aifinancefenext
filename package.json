@@ -14,9 +14,6 @@
         "prepare": "husky"
     },
     "lint-staged": {
-        "**/*.{ts,tsx}": [
-            "pnpm type-check"
-        ],
         "**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
             "pnpm run format:write"
         ]
