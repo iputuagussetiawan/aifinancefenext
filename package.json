@@ -7,14 +7,16 @@
         "build": "next build",
         "start": "next start",
         "lint": "eslint",
-        "lint:fix": "next lint --fix",
+        "lint:fix": "next lint",
         "type-check": "tsc --noEmit",
         "format:check": "prettier --check \"src/**/*.{ts,tsx,md,json}\"",
         "format:write": "prettier --write \"src/**/*.{ts,tsx,md,json}\"",
         "prepare": "husky"
     },
     "lint-staged": {
-        "**/*": "prettier --write --ignore-unknown"
+        "**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+            "pnpm run format:write"
+        ]
     },
     "dependencies": {
         "@base-ui/react": "^1.2.0",

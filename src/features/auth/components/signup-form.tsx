@@ -1,9 +1,10 @@
 'use client'
 
+import Link from 'next/link'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
-import { GithubIcon, GoogleIcon } from '@/components/icon/social-icons'
+import { GoogleSignInButton } from '@/components/google-sign-in'
 import { Button } from '@/components/ui/button'
 import {
     Field,
@@ -13,6 +14,7 @@ import {
     FieldSeparator,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { SIGNIN_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 import { handleRegister } from '../actions/auth'
@@ -46,12 +48,6 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
             // Set the error on the email field or a global message
             alert(result.error)
         }
-    }
-
-    const handleGoogleRegister = () => {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-        const authUrl = `${apiBaseUrl}/auth/google`
-        window.location.assign(authUrl)
     }
 
     return (
@@ -138,24 +134,15 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                 <FieldSeparator>Or continue with</FieldSeparator>
 
                 <Field>
-                    <Button
-                        variant="outline"
-                        type="button"
-                        className="w-full"
-                        onClick={handleGoogleRegister}
-                    >
-                        <GoogleIcon />
-                        Sign up with Google
-                    </Button>
-                    <Button variant="outline" type="button" className="w-full">
-                        <GithubIcon />
-                        Sign up with GitHub
-                    </Button>
+                    <GoogleSignInButton />
                     <p className="text-muted-foreground mt-4 text-center text-sm">
                         Already have an account?{' '}
-                        <a href="#" className="hover:text-primary underline underline-offset-4">
+                        <Link
+                            href={SIGNIN_URL}
+                            className="hover:text-primary underline underline-offset-4"
+                        >
                             Sign in
-                        </a>
+                        </Link>
                     </p>
                 </Field>
             </FieldGroup>
