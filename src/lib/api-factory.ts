@@ -8,7 +8,7 @@ class FetchFactory {
         const cookieStore = await cookies()
 
         // 🗝️ Get the specific token you saved in handleLogin
-        const token = cookieStore.get('session_token')?.value
+        const token = cookieStore.get('accessToken')?.value
         const cookieHeader = cookieStore.toString()
 
         const headers: HeadersInit = {

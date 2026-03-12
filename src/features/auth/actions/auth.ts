@@ -31,7 +31,7 @@ export async function handleLogin(data: SigninInputType) {
         // 3. Store the JWT in a secure HTTP-only cookie
         // This ensures the token cannot be stolen via JavaScript (XSS)
         const cookieStore = await cookies()
-        cookieStore.set('session_token', access_token, {
+        cookieStore.set('accessToken', access_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -59,12 +59,13 @@ export async function handleLogin(data: SigninInputType) {
 export async function getCurrentUser(): Promise<IUserProfile | null> {
     try {
         const cookieStore = await cookies()
-        const token = cookieStore.get('session_token')?.value
+        const token = cookieStore.get('accessToken')?.value
+        console.log(token)
 
         // 🗝️ If there is no cookie, don't even bother calling the API
         if (!token) return null
 
-        // Call the backend /me endpoint
+        //Call the backend /me endpoint
         const result: IUserResponse = await userService.getMe()
 
         return result.user

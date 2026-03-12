@@ -12,8 +12,8 @@ export function middleware(request: NextRequest) {
     }
 
     // 2. AUTH SETUP
-    // Ensure this matches the name you set in handleLogin ('session_token' or 'accessToken')
-    const token = request.cookies.get('session_token')?.value
+    // Ensure this matches the name you set in handleLogin ('accessToken' or 'accessToken')
+    const token = request.cookies.get('accessToken')?.value
 
     const isAuthPage =
         pathname.startsWith('/signin') || pathname.startsWith('/register') || pathname === '/'
@@ -35,5 +35,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     // 🗝️ Must include login/register in the matcher for this to work!
-    matcher: ['/api/:path*', '/dashboard/:path*', '/signin', '/signup'],
+    matcher: ['/dashboard/:path*', '/signin', '/signup'],
 }
