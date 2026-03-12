@@ -73,7 +73,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
 
                 {/* Password */}
                 <UiFormInput
-                    label="Email Address"
+                    label="Password"
                     id="password"
                     type="password"
                     placeholder="your password"
