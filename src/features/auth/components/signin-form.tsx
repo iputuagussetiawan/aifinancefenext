@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation' // 🗝️ For redirecting after log
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
+import { GithubIcon } from '@/components/icon/social-icons'
 import { Button } from '@/components/ui/button'
 import { Field, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { DASHBOARD_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 import { handleLogin } from '../actions/auth' // Ensure this exists
@@ -34,7 +36,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
         if (result.success) {
             // 🚀 Move the user to the dashboard or trading floor
             console.log(result.user)
-            router.push('/dashboard')
+            router.push(DASHBOARD_URL)
             router.refresh()
         } else {
             // 🗝️ If login fails, highlight both fields or show a specific message
@@ -113,6 +115,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
 
                 <Button variant="outline" type="button" className="w-full" disabled={isSubmitting}>
                     {/* Github Icon */}
+                    <GithubIcon />
                     Login with GitHub
                 </Button>
 

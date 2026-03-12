@@ -2,6 +2,7 @@
 
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react'
 
+import type { IUserProfile } from '@/features/auth/types/auth-type'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     DropdownMenu,
@@ -21,17 +22,10 @@ import {
 
 import { LogoutMenuItem } from './logout-menu-item'
 
-export function NavUser({
-    user,
-}: {
-    user: {
-        name: string
-        email: string
-        profilePicture: string
-    }
-}) {
+export function NavUser({ user }: { user: IUserProfile | null }) {
     const { isMobile } = useSidebar()
-
+    // If there is no user (logged out), don't render the sidebar menu item at all
+    if (!user) return null
     return (
         <SidebarMenu>
             <SidebarMenuItem>

@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { AUTH_COOKIE_NAME } from '@/lib/constants'
+import { AUTH_COOKIE_NAME, SIGNIN_URL } from '@/lib/constants'
 
 import { userService } from '../services/auth-service'
 import type {
@@ -97,5 +97,5 @@ export async function handleLogout() {
         }
     }
     cookieStore.delete(AUTH_COOKIE_NAME)
-    redirect('/signin')
+    redirect(SIGNIN_URL)
 }
