@@ -4,12 +4,12 @@ import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Briefcase, Check, GraduationCap, User } from 'lucide-react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, type Resolver } from 'react-hook-form'
 
 import { OnboardingStepper } from '@/features/onboarding/components/onboarding-stepper'
 import { Button } from '@/components/ui/button'
 
-import { jobseekerFormValidation, type jobseekerInputType } from '../types/onboarding-type'
+import { jobseekerValidation, type JobseekerInputType } from '../types/jobseeker-type'
 import { FormNavigation } from './jobseeker/onboarding-stepper-navigation'
 import EducationInfo from './jobseeker/steps/education-info'
 import ExperienceInfo from './jobseeker/steps/experience-info'
@@ -18,8 +18,8 @@ import ReviewStep from './jobseeker/steps/review'
 
 const steps = [
     { step: 1, title: 'Personal Info', description: 'Account & contact details', icon: User },
-    { step: 2, title: 'Education', description: 'Academic background', icon: GraduationCap },
-    { step: 3, title: 'Experience', description: 'Work history', icon: Briefcase },
+    { step: 2, title: 'Last Education', description: 'Academic background', icon: GraduationCap },
+    { step: 3, title: 'Last Experience', description: 'Work history', icon: Briefcase },
     { step: 4, title: 'Summary', description: 'Final review', icon: Check },
 ]
 
@@ -29,25 +29,57 @@ const OnboardingJobseeker = () => {
     const [currentStep, setCurrentStep] = useState(1)
     const [isSubmitted, setIsSubmitted] = useState(false)
 
-    const form = useForm<jobseekerInputType>({
-        resolver: zodResolver(jobseekerFormValidation),
+    const form = useForm<JobseekerInputType>({
+        resolver: zodResolver(jobseekerValidation) as Resolver<JobseekerInputType>,
         mode: 'onTouched',
         defaultValues: {
-            fullName: '',
+            firstName: '',
+            lastName: '',
+            headline: '',
+            currentPosition: '',
+            industry: '',
             country: '',
-            education: '',
-            jobTitle: '',
-            experience: '',
-            position: '',
+            city: '',
+            phoneNumber: '',
+            phoneType: '',
+            address: '',
+            birthday: '',
+            educations: [
+                {
+                    schoolName: '',
+                    degree: '',
+                    fieldOfStudy: '',
+                    startDate: '' as unknown as Date,
+                    endDate: '' as unknown as Date,
+                    grade: '',
+                    activities: '',
+                    description: '',
+                    orderPosition: 0,
+                },
+            ], // Updated to match schema array
+            experiences: [], // Updated to match schema array
         },
     })
 
     const stepConfig = {
-        1: { fields: ['fullName', 'country'] },
-        2: { fields: ['education'] },
-        3: { fields: ['jobTitle', 'experience', 'position'] },
+        1: {
+            fields: [
+                'firstName',
+                'lastName',
+                'headline',
+                'currentPosition',
+                'industry',
+                'country',
+                'city',
+                'phoneNumber',
+                'address',
+                'birthday',
+            ],
+        },
+        2: { fields: ['educations'] }, // Validates the entire array
+        3: { fields: ['experiences'] }, // Validates the entire array
         4: { fields: [] },
-    } as Record<number, { fields: (keyof jobseekerInputType)[] }>
+    } as Record<number, { fields: (keyof JobseekerInputType)[] }>
 
     const next = async () => {
         const fieldsToValidate = stepConfig[currentStep]?.fields || []
@@ -61,7 +93,7 @@ const OnboardingJobseeker = () => {
 
     const prev = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
-    const onSubmit = (data: jobseekerInputType) => {
+    const onSubmit = (data: JobseekerInputType) => {
         if (currentStep !== totalSteps) {
             return // prevent submit before review step
         }
