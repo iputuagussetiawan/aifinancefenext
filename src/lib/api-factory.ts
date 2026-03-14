@@ -23,7 +23,6 @@ class FetchFactory {
         // Many backends prefer this over reading the Cookie header
         if (token) {
             headers['Authorization'] = `Bearer ${token}`
-            headers['Cookie'] = `session_token=${token}`
         }
 
         return headers

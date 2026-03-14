@@ -1,7 +1,11 @@
-import React from 'react'
+import OnboardingJobseeker from '@/features/onboarding/components/onboarding-jobseeker'
 
 const page = () => {
-    return <div>Jobseekr</div>
+    return (
+        <div>
+            <OnboardingJobseeker />
+        </div>
+    )
 }
 
 export default page

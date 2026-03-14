@@ -12,6 +12,7 @@ interface UiFormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const UiFormInput = forwardRef<HTMLInputElement, UiFormInputProps>(
     ({ label, error, isSubmitting, id, className, ...props }, ref) => {
+        const isInvalid = !!error
         return (
             <Field>
                 {label && <FieldLabel htmlFor={id}>{label}</FieldLabel>}
@@ -19,6 +20,7 @@ export const UiFormInput = forwardRef<HTMLInputElement, UiFormInputProps>(
                     {...props}
                     id={id}
                     ref={ref} // 🗝️ Vital for React Hook Form register
+                    aria-invalid={isInvalid}
                     disabled={isSubmitting}
                     className={`${className} ${
                         error ? 'border-destructive focus-visible:ring-destructive' : ''

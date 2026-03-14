@@ -13,8 +13,6 @@ import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 
 export default async function Page() {
-    const user = await getCurrentUser()
-
     return (
         <SidebarProvider>
             <AppSidebar />
