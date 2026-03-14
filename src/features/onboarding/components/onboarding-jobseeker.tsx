@@ -8,6 +8,7 @@ import { FormProvider, useForm, type Resolver } from 'react-hook-form'
 
 import { OnboardingStepper } from '@/features/onboarding/components/onboarding-stepper'
 import { Button } from '@/components/ui/button'
+import { useFormPersist } from '@/hooks/use-form-persist'
 
 import { jobseekerValidation, type JobseekerInputType } from '../types/jobseeker-type'
 import { FormNavigation } from './jobseeker/onboarding-stepper-navigation'
@@ -61,6 +62,8 @@ const OnboardingJobseeker = () => {
         },
     })
 
+    const { clearStorage } = useFormPersist(form, 'jobseeker-onboarding-data')
+
     const stepConfig = {
         1: {
             fields: [
@@ -97,9 +100,17 @@ const OnboardingJobseeker = () => {
         if (currentStep !== totalSteps) {
             return // prevent submit before review step
         }
-        console.log('Final Submission:', data)
-        setIsSubmitted(true)
-        // Trigger the success view
+
+        try {
+            // Your API call here
+            console.log('Final Submission:', data)
+
+            // --- NEW: Clear storage only on success ---
+            clearStorage()
+            setIsSubmitted(true)
+        } catch (error) {
+            console.error('Submission failed', error)
+        }
     }
     // Success View
     if (isSubmitted) {
