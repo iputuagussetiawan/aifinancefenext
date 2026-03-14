@@ -3,8 +3,6 @@ import { z } from 'zod'
 export const experienceValidation = z
     .object({
         // --- Identifiers ---
-        _id: z.string().optional(),
-        userId: z.string().min(1, 'User ID is required'),
         companyId: z.string().optional().nullable(), // Optional if not linked to a registered company
 
         // --- Role Details ---
