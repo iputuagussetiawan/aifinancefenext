@@ -44,7 +44,7 @@ export function OnboardingCard({ role, isSelected, onSelect }: OnboardingCardPro
             {/* Conditional Rendering (v-if equivalent) */}
             {isSelected && (
                 <div className="bg-primary text-primary-foreground animate-in fade-in zoom-in-50 absolute top-4 right-4 flex h-5 w-5 items-center justify-center rounded-full duration-200">
-                    <Check className="h-3 w-3 stroke-[3]" />
+                    <Check className="h-3 w-3 stroke-3" />
                 </div>
             )}
 

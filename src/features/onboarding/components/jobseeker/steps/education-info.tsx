@@ -4,7 +4,7 @@ import React from 'react'
 import { GraduationCap, Plus, Trash2 } from 'lucide-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
-import type { JobseekerInputType } from '@/features/onboarding/types/jobseeker-type'
+import type { JobseekerDTO } from '@/features/onboarding/types/jobseeker-type'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -15,7 +15,7 @@ const EducationInfo = () => {
         register,
         control,
         formState: { errors, isSubmitting },
-    } = useFormContext<JobseekerInputType>()
+    } = useFormContext<JobseekerDTO>()
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -139,7 +139,7 @@ const EducationInfo = () => {
                             <Textarea
                                 {...register(`educations.${index}.description`)}
                                 placeholder="Briefly describe your thesis, honors, or key courses..."
-                                className="min-h-[100px]"
+                                className="min-h-25"
                             />
                         </div>
                     </div>

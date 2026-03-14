@@ -36,7 +36,7 @@ export const FormNavigation = ({
 
             {isLastStep ? (
                 /* Final Submit Button */
-                <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
+                <Button type="submit" disabled={isSubmitting} className="min-w-35">
                     {isSubmitting ? 'Completing...' : `Complete Step ${currentStep}`}
                 </Button>
             ) : (

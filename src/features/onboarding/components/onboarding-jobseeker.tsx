@@ -10,7 +10,7 @@ import { OnboardingStepper } from '@/features/onboarding/components/onboarding-s
 import { Button } from '@/components/ui/button'
 import { useFormPersist } from '@/hooks/use-form-persist'
 
-import { jobseekerValidation, type JobseekerInputType } from '../types/jobseeker-type'
+import { jobseekerValidation, type JobseekerDTO } from '../types/jobseeker-type'
 import { FormNavigation } from './jobseeker/onboarding-stepper-navigation'
 import EducationInfo from './jobseeker/steps/education-info'
 import ExperienceInfo from './jobseeker/steps/experience-info'
@@ -30,8 +30,8 @@ const OnboardingJobseeker = () => {
     const [currentStep, setCurrentStep] = useState(1)
     const [isSubmitted, setIsSubmitted] = useState(false)
 
-    const form = useForm<JobseekerInputType>({
-        resolver: zodResolver(jobseekerValidation) as Resolver<JobseekerInputType>,
+    const form = useForm<JobseekerDTO>({
+        resolver: zodResolver(jobseekerValidation) as Resolver<JobseekerDTO>,
         mode: 'onTouched',
         defaultValues: {
             firstName: '',
@@ -82,7 +82,7 @@ const OnboardingJobseeker = () => {
         2: { fields: ['educations'] }, // Validates the entire array
         3: { fields: ['experiences'] }, // Validates the entire array
         4: { fields: [] },
-    } as Record<number, { fields: (keyof JobseekerInputType)[] }>
+    } as Record<number, { fields: (keyof JobseekerDTO)[] }>
 
     const next = async () => {
         const fieldsToValidate = stepConfig[currentStep]?.fields || []
@@ -96,7 +96,7 @@ const OnboardingJobseeker = () => {
 
     const prev = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
-    const onSubmit = (data: JobseekerInputType) => {
+    const onSubmit = (data: JobseekerDTO) => {
         if (currentStep !== totalSteps) {
             return // prevent submit before review step
         }
