@@ -1,4 +1,3 @@
-import { getCurrentUser } from '@/features/auth/actions/auth'
 import UserProfile from '@/features/dashboard/components/user-profile'
 import { AppSidebar } from '@/components/app-sidebar'
 import {

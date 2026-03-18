@@ -1,6 +1,9 @@
 import React from 'react'
 
-const page = () => {
+import { protectOnboarding } from '@/features/onboarding/lib/onboarding-guard'
+
+const page = async () => {
+    const user = await protectOnboarding()
     return <div>Employer</div>
 }
 

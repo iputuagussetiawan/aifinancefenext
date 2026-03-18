@@ -42,6 +42,7 @@ export interface IUserProfile {
     profilePicture: string // Cloudinary URL
     isActive: boolean
     lastLogin: string | null
+    onboardingComplete: boolean
     createdAt: string // ISO Date String
     updatedAt: string // ISO Date String
 }
