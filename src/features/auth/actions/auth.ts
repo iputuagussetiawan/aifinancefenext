@@ -12,8 +12,6 @@ import type {
     IUserProfile,
     IUserResponse,
     IVerifyInputType,
-    ResetPasswordApiRequestType,
-    ResetPasswordInputType,
     SigninInputType,
     SignupInputType,
 } from '../types/auth-type'
@@ -93,7 +91,7 @@ export async function handleForgotPassword(data: ForgotPasswordInputType) {
     }
 }
 
-export async function handleResetPassword(data: ResetPasswordApiRequestType) {
+export async function handleResetPassword(data: any) {
     try {
         await userService.resetPassword(data)
         return {

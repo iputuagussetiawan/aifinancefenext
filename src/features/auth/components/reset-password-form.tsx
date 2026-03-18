@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AlertCircle, Timer } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,48 @@ export function ResetPasswordForm({ className, ...props }: React.ComponentProps<
     const [serverError, setServerError] = useState<string | null>(null)
     const [isSuccess, setIsSuccess] = useState(false)
     const verificationCode = searchParams.get('code')
-    const expiration = searchParams.get('exp')
+    const expiration = Number(searchParams.get('exp'))
+
+    const [timeLeft, setTimeLeft] = useState<string>('00:00')
+    const [isExpired, setIsExpired] = useState(false)
+
+    const calculateTimeLeft = useCallback(() => {
+        // 1. Safety Check: If no expiration string exists
+        if (!expiration) {
+            setIsExpired(true)
+            return
+        }
+
+        const expiryDate = new Date(expiration).getTime()
+        const now = new Date().getTime()
+
+        // 2. NaN Check: If the string in URL isn't a valid date
+        if (isNaN(expiryDate)) {
+            console.error('Invalid expiration date format received:', expiration)
+            setIsExpired(true)
+            return
+        }
+
+        const difference = expiryDate - now
+
+        if (difference <= 0) {
+            setIsExpired(true)
+            setTimeLeft('00:00')
+            return
+        }
+
+        // 3. Format calculation
+        const minutes = Math.floor((difference / 1000 / 60) % 60)
+        const seconds = Math.floor((difference / 1000) % 60)
+
+        setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`)
+    }, [expiration])
+
+    useEffect(() => {
+        calculateTimeLeft()
+        const timer = setInterval(calculateTimeLeft, 1000)
+        return () => clearInterval(timer)
+    }, [calculateTimeLeft])
 
     const {
         register,
@@ -51,6 +93,19 @@ export function ResetPasswordForm({ className, ...props }: React.ComponentProps<
         }
     }
 
+    if (isExpired || !verificationCode) {
+        return (
+            <div className={cn('flex flex-col gap-6 py-8 text-center', className)}>
+                <AlertCircle className="text-destructive mx-auto h-12 w-12" />
+                <h1 className="text-destructive text-2xl font-bold">Link Expired</h1>
+                <p className="text-muted-foreground text-sm">This link is no longer valid.</p>
+                <Button variant="outline" onClick={() => router.push('/forgot-password')}>
+                    Request New Link
+                </Button>
+            </div>
+        )
+    }
+
     if (isSuccess) {
         return (
             <div
@@ -78,16 +133,24 @@ export function ResetPasswordForm({ className, ...props }: React.ComponentProps<
             onSubmit={handleSubmit(onSubmit)}
             {...props}
         >
-            <div>
-                <p>Verification Code: {verificationCode}</p>
-                <p>Expires at: {expiration}</p>
-            </div>
             <FieldGroup>
                 <div className="flex flex-col items-center gap-1 text-center">
                     <h1 className="text-2xl font-bold">Set New Password</h1>
                     <p className="text-muted-foreground text-sm">
                         Please enter your new password below
                     </p>
+                </div>
+
+                <div
+                    className={cn(
+                        'flex items-center justify-center gap-2 self-center rounded-full border px-4 py-2 text-xs font-medium',
+                        timeLeft.startsWith('00')
+                            ? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse'
+                            : 'bg-primary/5 text-primary border-primary/10',
+                    )}
+                >
+                    <Timer className="h-3.5 w-3.5" />
+                    <span>Expires in: {timeLeft}</span>
                 </div>
 
                 {serverError && (

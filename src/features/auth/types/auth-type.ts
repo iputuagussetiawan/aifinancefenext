@@ -30,7 +30,7 @@ export type SigninInputType = z.infer<typeof signinValidation>
 export type ForgotPasswordInputType = z.infer<typeof forgotPasswordValidation>
 export type ResetPasswordInputType = z.infer<typeof resetPasswordValidation>
 
-export type ResetPasswordApiRequestType = {
+export type IResetPasswordInputType = {
     password: string // The new password
     verificationCode: string // The code/token from the URL
 }
