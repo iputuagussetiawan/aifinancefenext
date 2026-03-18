@@ -2,8 +2,9 @@ import { Inter } from 'next/font/google'
 
 import './globals.css'
 
-import { getCurrentUser } from '@/features/auth/actions/auth'
+// import { getCurrentUser } from '@/features/auth/actions/auth'
 import { AuthProvider } from '@/features/auth/context/auth-context'
+import { getCurrentUser } from '@/features/user/actions/user'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // Initialize the Inter font

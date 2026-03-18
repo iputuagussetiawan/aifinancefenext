@@ -12,7 +12,7 @@ import type {
     SignupInputType,
 } from '../types/auth-type'
 
-export const userService = {
+export const authService = {
     // 1. Add the Register function
     register: (data: SignupInputType) =>
         api.API<IUserProfile>('/api/auth/register', {

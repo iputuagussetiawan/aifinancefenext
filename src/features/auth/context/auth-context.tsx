@@ -2,10 +2,10 @@
 
 import { createContext, ReactNode, useContext } from 'react'
 
-import type { IUserProfile } from '../types/auth-type'
+import type { IUserResponse } from '@/features/user/types/user-type'
 
 interface AuthContextType {
-    user: IUserProfile | null
+    user: IUserResponse | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -14,7 +14,7 @@ export function AuthProvider({
     user,
     children,
 }: {
-    user: IUserProfile | null
+    user: IUserResponse | null
     children: ReactNode
 }) {
     return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>

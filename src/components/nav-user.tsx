@@ -1,9 +1,8 @@
 'use client'
 
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react'
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, Sparkles } from 'lucide-react'
 
-import type { IUserProfile } from '@/features/auth/types/auth-type'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import type { IUser } from '@/features/user/types/user-type'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,8 +20,9 @@ import {
 } from '@/components/ui/sidebar'
 
 import { LogoutMenuItem } from './logout-menu-item'
+import { UserAvatar } from './user-avatar'
 
-export function NavUser({ user }: { user: IUserProfile | null }) {
+export function NavUser({ user }: { user: IUser | null }) {
     const { isMobile } = useSidebar()
     // If there is no user (logged out), don't render the sidebar menu item at all
     if (!user) return null
@@ -35,10 +35,7 @@ export function NavUser({ user }: { user: IUserProfile | null }) {
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src={user.profilePicture} alt={user.name} />
-                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                            </Avatar>
+                            <UserAvatar name={user.name} image={user.profilePicture} />
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">{user.name}</span>
                                 <span className="truncate text-xs">{user.email}</span>
@@ -54,10 +51,7 @@ export function NavUser({ user }: { user: IUserProfile | null }) {
                     >
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                <Avatar className="h-8 w-8 rounded-lg">
-                                    <AvatarImage src={user.profilePicture} alt={user.name} />
-                                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                                </Avatar>
+                                <UserAvatar name={user.name} image={user.profilePicture} />
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-medium">{user.name}</span>
                                     <span className="truncate text-xs">{user.email}</span>

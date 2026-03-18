@@ -6,7 +6,7 @@ import { decodeJwt } from 'jose'
 
 import { AUTH_COOKIE_NAME, SIGNIN_URL } from '@/lib/constants'
 
-import { userService } from '../services/auth-service'
+import { authService } from '../services/auth-service'
 import type {
     ForgotPasswordInputType,
     IUserProfile,
@@ -18,7 +18,7 @@ import type {
 
 export async function handleRegister(data: SignupInputType) {
     try {
-        const user = await userService.register(data)
+        const user = await authService.register(data)
         return { success: true, user }
     } catch (error: any) {
         return { success: false, error: error.message || 'Failed to register' }
@@ -27,7 +27,7 @@ export async function handleRegister(data: SignupInputType) {
 
 export async function handleVerifyEmail(data: IVerifyInputType) {
     try {
-        const user = await userService.verify(data)
+        const user = await authService.verify(data)
         return { success: true, user }
     } catch (error: any) {
         return { success: false, error: error.message || 'Failed to verify' }
@@ -37,7 +37,7 @@ export async function handleVerifyEmail(data: IVerifyInputType) {
 export async function handleLogin(data: SigninInputType) {
     try {
         // 1. Call the service layer (which uses your new LoginResponse interface)
-        const response = await userService.login(data)
+        const response = await authService.login(data)
 
         // 2. Extract the token and user data
         const { access_token, user } = response
@@ -75,7 +75,7 @@ export async function handleForgotPassword(data: ForgotPasswordInputType) {
     try {
         // 2. Call your backend service
         // Ensure 'forgotPassword' is implemented in your userService
-        await userService.forgotPassword(data)
+        await authService.forgotPassword(data)
 
         return {
             success: true,
@@ -93,7 +93,7 @@ export async function handleForgotPassword(data: ForgotPasswordInputType) {
 
 export async function handleResetPassword(data: any) {
     try {
-        await userService.resetPassword(data)
+        await authService.resetPassword(data)
         return {
             success: true,
             message: 'Your password has been successfully updated. You can now log in.',
@@ -109,68 +109,68 @@ export async function handleResetPassword(data: any) {
     }
 }
 
-export async function getCurrentUser(
-    shouldRedirect: boolean = false,
-): Promise<IUserProfile | null> {
-    const cookieStore = await cookies()
-    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
+// export async function getCurrentUser(
+//     shouldRedirect: boolean = false,
+// ): Promise<IUserProfile | null> {
+//     const cookieStore = await cookies()
+//     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
 
-    // 1. Jika tidak ada token
-    if (!token) {
-        if (shouldRedirect) redirect('/signin')
-        return null
-    }
+//     // 1. Jika tidak ada token
+//     if (!token) {
+//         if (shouldRedirect) redirect('/signin')
+//         return null
+//     }
 
-    try {
-        // 2. Dekode Payload JWT tanpa verifikasi signature (cepat & efisien untuk cek expiry)
-        const payload = decodeJwt(token)
+//     try {
+//         // 2. Dekode Payload JWT tanpa verifikasi signature (cepat & efisien untuk cek expiry)
+//         const payload = decodeJwt(token)
 
-        // 3. Cek apakah ada field 'exp' (expiration)
-        if (payload.exp) {
-            const expirationTime = payload.exp * 1000 // JWT exp dalam detik, JS Date dalam milidetik
-            const now = Date.now()
+//         // 3. Cek apakah ada field 'exp' (expiration)
+//         if (payload.exp) {
+//             const expirationTime = payload.exp * 1000 // JWT exp dalam detik, JS Date dalam milidetik
+//             const now = Date.now()
 
-            if (now >= expirationTime) {
-                console.warn('Sesi telah berakhir (Token Expired)')
+//             if (now >= expirationTime) {
+//                 console.warn('Sesi telah berakhir (Token Expired)')
 
-                // Hapus token dari browser
-                cookieStore.delete(AUTH_COOKIE_NAME)
+//                 // Hapus token dari browser
+//                 cookieStore.delete(AUTH_COOKIE_NAME)
 
-                if (shouldRedirect) redirect('/signin')
-                return null
-            }
-        }
+//                 if (shouldRedirect) redirect('/signin')
+//                 return null
+//             }
+//         }
 
-        // 4. Jika token masih valid, panggil API backend
-        const result: IUserResponse = await userService.getMe()
+//         // 4. Jika token masih valid, panggil API backend
+//         const result: IUserResponse = await authService.getMe()
 
-        if (!result || !result.user) {
-            // Jika backend bilang user tidak ditemukan meski token belum expired
-            cookieStore.delete(AUTH_COOKIE_NAME)
-            if (shouldRedirect) redirect('/signin')
-            return null
-        }
+//         if (!result || !result.user) {
+//             // Jika backend bilang user tidak ditemukan meski token belum expired
+//             cookieStore.delete(AUTH_COOKIE_NAME)
+//             if (shouldRedirect) redirect('/signin')
+//             return null
+//         }
 
-        return result.user
-    } catch (error: any) {
-        console.error('Gagal memproses user:', error.message)
+//         return result.user
+//     } catch (error: any) {
+//         console.error('Gagal memproses user:', error.message)
 
-        // Jika error dari API adalah 401 (Unauthorized), hapus token
-        if (error.response?.status === 401) {
-            cookieStore.delete(AUTH_COOKIE_NAME)
-        }
+//         // Jika error dari API adalah 401 (Unauthorized), hapus token
+//         if (error.response?.status === 401) {
+//             cookieStore.delete(AUTH_COOKIE_NAME)
+//         }
 
-        if (shouldRedirect) redirect('/signin')
-        return null
-    }
-}
+//         if (shouldRedirect) redirect('/signin')
+//         return null
+//     }
+// }
 
 export async function handleLogout() {
     const cookieStore = await cookies()
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
     if (token) {
         try {
-            await userService.logout()
+            await authService.logout()
         } catch (error) {
             console.error('Backend logout notice failed:', error)
         }

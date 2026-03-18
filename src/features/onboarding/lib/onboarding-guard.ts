@@ -1,17 +1,17 @@
 import { redirect } from 'next/navigation'
 
-import { getCurrentUser } from '@/features/auth/actions/auth'
+import { getCurrentUser } from '@/features/user/actions/user'
 import { DASHBOARD_URL, SIGNIN_URL } from '@/lib/constants'
 
 export async function protectOnboarding() {
-    const user = await getCurrentUser()
+    const result = await getCurrentUser()
     // 1. Kick out if not logged in
-    if (!user) {
+    if (!result) {
         redirect(SIGNIN_URL)
     }
     // 2. Kick out if they already finished onboarding
-    if (user.onboardingComplete) {
+    if (result.user.onboardingComplete) {
         redirect(DASHBOARD_URL)
     }
-    return user
+    return result
 }
