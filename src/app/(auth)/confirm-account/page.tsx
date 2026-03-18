@@ -1,8 +1,8 @@
 import { GalleryVerticalEnd } from 'lucide-react'
 
-import { ResetPasswordForm } from '@/features/auth/components/reset-password-form'
+import { ConfirmAccountForm } from '@/features/auth/components/confirm-account-form '
 
-export default function SignupPage() {
+export default function ConfirmAccountPage() {
     return (
         <div className="grid min-h-svh grid-cols-4">
             <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -11,12 +11,12 @@ export default function SignupPage() {
                         <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
                             <GalleryVerticalEnd className="size-4" />
                         </div>
-                        Acme Inc.
+                        AI Finance Assistant.
                     </a>
                 </div>
                 <div className="flex flex-1 items-center justify-center">
                     <div className="w-full max-w-xs">
-                        <ResetPasswordForm />
+                        <ConfirmAccountForm />
                     </div>
                 </div>
             </div>

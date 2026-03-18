@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { decodeJwt } from 'jose'
 
 import { AUTH_COOKIE_NAME, SIGNIN_URL } from '@/lib/constants'
 
@@ -10,6 +11,7 @@ import type {
     ForgotPasswordInputType,
     IUserProfile,
     IUserResponse,
+    IVerifyInputType,
     ResetPasswordApiRequestType,
     ResetPasswordInputType,
     SigninInputType,
@@ -22,6 +24,15 @@ export async function handleRegister(data: SignupInputType) {
         return { success: true, user }
     } catch (error: any) {
         return { success: false, error: error.message || 'Failed to register' }
+    }
+}
+
+export async function handleVerifyEmail(data: IVerifyInputType) {
+    try {
+        const user = await userService.verify(data)
+        return { success: true, user }
+    } catch (error: any) {
+        return { success: false, error: error.message || 'Failed to verify' }
     }
 }
 
@@ -100,31 +111,59 @@ export async function handleResetPassword(data: ResetPasswordApiRequestType) {
     }
 }
 
-export async function getCurrentUser(): Promise<IUserProfile | null> {
+export async function getCurrentUser(
+    shouldRedirect: boolean = false,
+): Promise<IUserProfile | null> {
     const cookieStore = await cookies()
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value
 
-    // 1. If no token, return null so the UI can redirect to signin
+    // 1. Jika tidak ada token
     if (!token) {
-        console.log('No session token found')
-        return null // 🗝️ Fix: Added return statement
+        if (shouldRedirect) redirect('/signin')
+        return null
     }
 
     try {
+        // 2. Dekode Payload JWT tanpa verifikasi signature (cepat & efisien untuk cek expiry)
+        const payload = decodeJwt(token)
+
+        // 3. Cek apakah ada field 'exp' (expiration)
+        if (payload.exp) {
+            const expirationTime = payload.exp * 1000 // JWT exp dalam detik, JS Date dalam milidetik
+            const now = Date.now()
+
+            if (now >= expirationTime) {
+                console.warn('Sesi telah berakhir (Token Expired)')
+
+                // Hapus token dari browser
+                cookieStore.delete(AUTH_COOKIE_NAME)
+
+                if (shouldRedirect) redirect('/signin')
+                return null
+            }
+        }
+
+        // 4. Jika token masih valid, panggil API backend
         const result: IUserResponse = await userService.getMe()
 
-        // 2. Validate the API response
         if (!result || !result.user) {
-            console.error('USER_NOT_FOUND: Backend returned empty user data')
-            return null // 🗝️ Fix: Added return statement
+            // Jika backend bilang user tidak ditemukan meski token belum expired
+            cookieStore.delete(AUTH_COOKIE_NAME)
+            if (shouldRedirect) redirect('/signin')
+            return null
         }
 
         return result.user
     } catch (error: any) {
-        console.error('Failed to fetch current user:', error)
+        console.error('Gagal memproses user:', error.message)
 
-        // 3. Return null so the app doesn't crash, but knows the user isn't auth'd
-        return null // 🗝️ Fix: Added return statement to satisfy the return type
+        // Jika error dari API adalah 401 (Unauthorized), hapus token
+        if (error.response?.status === 401) {
+            cookieStore.delete(AUTH_COOKIE_NAME)
+        }
+
+        if (shouldRedirect) redirect('/signin')
+        return null
     }
 }
 

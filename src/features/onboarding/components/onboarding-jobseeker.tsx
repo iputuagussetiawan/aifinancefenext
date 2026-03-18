@@ -6,6 +6,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Briefcase, Check, GraduationCap, User } from 'lucide-react'
 import { FormProvider, useForm, type Resolver } from 'react-hook-form'
 
+import { handleCreateEducation } from '@/features/education/actions/education-action'
+import { handleCreateExperience } from '@/features/experience/actions/experience-action'
+import { handleSaveJobseekerProfile } from '@/features/jobseeker/actions/jobseeker-action'
 import { OnboardingStepper } from '@/features/onboarding/components/onboarding-stepper'
 import { Button } from '@/components/ui/button'
 import { useFormPersist } from '@/hooks/use-form-persist'
@@ -96,7 +99,7 @@ const OnboardingJobseeker = () => {
 
     const prev = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
-    const onSubmit = (data: JobseekerDTO) => {
+    const onSubmit = async (data: JobseekerDTO) => {
         if (currentStep !== totalSteps) {
             return // prevent submit before review step
         }
@@ -104,10 +107,21 @@ const OnboardingJobseeker = () => {
         try {
             // Your API call here
             console.log('Final Submission:', data)
+            const result = await handleSaveJobseekerProfile(data)
+            const resultEducation = await handleCreateEducation(data.educations[0])
+            const resultExperience = await handleCreateExperience(data.experiences[0])
+            console.log(result)
+            console.log(resultEducation)
+            console.log(resultExperience)
 
-            // --- NEW: Clear storage only on success ---
-            clearStorage()
-            setIsSubmitted(true)
+            if (result.success && resultEducation.success && resultExperience.success) {
+                clearStorage()
+                setIsSubmitted(true)
+            } else {
+                // This is likely where your error is hiding!
+                console.error('Server Logic Error:', result.error)
+                alert(result.error) // Show the user what went wrong
+            }
         } catch (error) {
             console.error('Submission failed', error)
         }

@@ -7,6 +7,7 @@ import type {
     ILoginResponse,
     IUserProfile,
     IUserResponse,
+    IVerifyInputType,
     ResetPasswordApiRequestType,
     SigninInputType,
     SignupInputType,
@@ -21,7 +22,13 @@ export const userService = {
             // We usually don't cache registration attempts
             cache: 'no-store',
         }),
-
+    verify: (data: IVerifyInputType) =>
+        api.API<IUserProfile>('/api/auth/verify/email', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            // We usually don't cache registration attempts
+            cache: 'no-store',
+        }),
     login: (data: SigninInputType) =>
         api.API<ILoginResponse>('/api/auth/login', {
             method: 'POST',

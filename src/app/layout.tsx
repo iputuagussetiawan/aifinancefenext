@@ -17,7 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     let user = null
     try {
         // Attempt to get the user
-        user = await getCurrentUser()
+        user = await getCurrentUser(true)
     } catch (error) {
         // If getCurrentUser throws 'UNAUTHORIZED', we just set user to null
         // This allows the Login page to render instead of crashing the app

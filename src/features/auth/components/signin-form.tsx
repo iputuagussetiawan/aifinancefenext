@@ -9,7 +9,7 @@ import { GoogleSignInButton } from '@/components/google-sign-in'
 import { Button } from '@/components/ui/button'
 import { FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { UiFormInput } from '@/components/ui/UiFormInput'
-import { DASHBOARD_URL, SIGNUP_URL } from '@/lib/constants'
+import { ONBOARDING_URL, SIGNUP_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 import { handleLogin } from '../actions/auth' // Ensure this exists
@@ -37,7 +37,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
         if (result.success) {
             // 🚀 Move the user to the dashboard or trading floor
             console.log(result.user)
-            router.push(DASHBOARD_URL)
+            router.push(ONBOARDING_URL)
             router.refresh()
         } else {
             // 🗝️ If login fails, highlight both fields or show a specific message

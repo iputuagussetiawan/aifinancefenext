@@ -6,7 +6,7 @@ import type { ExperienceDTO, IExperienceResponse } from '../types/experience-typ
 
 export const experienceService = {
     create: (data: ExperienceDTO) =>
-        api.API<IExperienceResponse>('/api/education/create', {
+        api.API<IExperienceResponse>('/api/experience/create', {
             method: 'POST',
             body: JSON.stringify(data),
             // We usually don't cache registration attempts

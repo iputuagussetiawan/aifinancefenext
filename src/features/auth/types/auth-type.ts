@@ -58,3 +58,7 @@ export interface ILoginResponse {
     user: IUserProfile
     access_token: string
 }
+
+export interface IVerifyInputType {
+    code: string
+}
