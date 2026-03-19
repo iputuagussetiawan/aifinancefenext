@@ -3,8 +3,6 @@ import { z } from 'zod'
 export const experienceValidation = z
     .object({
         // --- Identifiers ---
-        _id: z.string().optional(),
-        userId: z.string().min(1, 'User ID is required'),
         companyId: z.string().optional().nullable(), // Optional if not linked to a registered company
 
         // --- Role Details ---
@@ -44,3 +42,41 @@ export const experienceValidation = z
 
 // Extract the Type
 export type ExperienceInputType = z.infer<typeof experienceValidation>
+export type ExperienceDTO = z.infer<typeof experienceValidation>
+
+export interface IExperience {
+    _id: string
+    id: string // Virtual id from Mongoose
+    userId: string
+    companyId: string | null
+
+    // Role Details
+    title: string
+    profileHeadline?: string
+    employmentType: string
+    company: string
+
+    // Status & Dates
+    isCurrent: boolean
+    startDate: string // ISO Date String
+    endDate: string | null
+
+    // Location
+    location: string
+    locationType: string
+
+    // Content
+    description?: string
+    whereFineThisJobs?: string
+
+    // Metadata
+    orderPosition: number
+    __v: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface IExperienceResponse {
+    message: string
+    experience: IExperience
+}

@@ -6,10 +6,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Briefcase, Check, GraduationCap, User } from 'lucide-react'
 import { FormProvider, useForm, type Resolver } from 'react-hook-form'
 
+import { handleCreateEducation } from '@/features/education/actions/education-action'
+import { handleCreateExperience } from '@/features/experience/actions/experience-action'
+import { handleSaveJobseekerProfile } from '@/features/jobseeker/actions/jobseeker-action'
 import { OnboardingStepper } from '@/features/onboarding/components/onboarding-stepper'
 import { Button } from '@/components/ui/button'
+import { useFormPersist } from '@/hooks/use-form-persist'
 
-import { jobseekerValidation, type JobseekerInputType } from '../types/jobseeker-type'
+import { jobseekerValidation, type JobseekerDTO } from '../types/jobseeker-type'
 import { FormNavigation } from './jobseeker/onboarding-stepper-navigation'
 import EducationInfo from './jobseeker/steps/education-info'
 import ExperienceInfo from './jobseeker/steps/experience-info'
@@ -29,8 +33,8 @@ const OnboardingJobseeker = () => {
     const [currentStep, setCurrentStep] = useState(1)
     const [isSubmitted, setIsSubmitted] = useState(false)
 
-    const form = useForm<JobseekerInputType>({
-        resolver: zodResolver(jobseekerValidation) as Resolver<JobseekerInputType>,
+    const form = useForm<JobseekerDTO>({
+        resolver: zodResolver(jobseekerValidation) as Resolver<JobseekerDTO>,
         mode: 'onTouched',
         defaultValues: {
             firstName: '',
@@ -61,6 +65,8 @@ const OnboardingJobseeker = () => {
         },
     })
 
+    const { clearStorage } = useFormPersist(form, 'jobseeker-onboarding-data')
+
     const stepConfig = {
         1: {
             fields: [
@@ -79,7 +85,7 @@ const OnboardingJobseeker = () => {
         2: { fields: ['educations'] }, // Validates the entire array
         3: { fields: ['experiences'] }, // Validates the entire array
         4: { fields: [] },
-    } as Record<number, { fields: (keyof JobseekerInputType)[] }>
+    } as Record<number, { fields: (keyof JobseekerDTO)[] }>
 
     const next = async () => {
         const fieldsToValidate = stepConfig[currentStep]?.fields || []
@@ -93,13 +99,32 @@ const OnboardingJobseeker = () => {
 
     const prev = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
-    const onSubmit = (data: JobseekerInputType) => {
+    const onSubmit = async (data: JobseekerDTO) => {
         if (currentStep !== totalSteps) {
             return // prevent submit before review step
         }
-        console.log('Final Submission:', data)
-        setIsSubmitted(true)
-        // Trigger the success view
+
+        try {
+            // Your API call here
+            console.log('Final Submission:', data)
+            const result = await handleSaveJobseekerProfile(data)
+            const resultEducation = await handleCreateEducation(data.educations[0])
+            const resultExperience = await handleCreateExperience(data.experiences[0])
+            console.log(result)
+            console.log(resultEducation)
+            console.log(resultExperience)
+
+            if (result.success && resultEducation.success && resultExperience.success) {
+                clearStorage()
+                setIsSubmitted(true)
+            } else {
+                // This is likely where your error is hiding!
+                console.error('Server Logic Error:', result.error)
+                alert(result.error) // Show the user what went wrong
+            }
+        } catch (error) {
+            console.error('Submission failed', error)
+        }
     }
     // Success View
     if (isSubmitted) {

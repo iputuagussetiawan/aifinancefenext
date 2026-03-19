@@ -68,7 +68,7 @@ export function OnboardingStepper({ steps, currentStep, onStepClick }: Onboardin
                                     )}
                                 >
                                     {isCompleted ? (
-                                        <Check className="h-5 w-5 stroke-[3]" />
+                                        <Check className="h-5 w-5 stroke-3" />
                                     ) : (
                                         <Icon className="h-5 w-5" />
                                     )}

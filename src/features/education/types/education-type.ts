@@ -33,3 +33,35 @@ export const educationValidation = z
     })
 
 export type EducationInputType = z.infer<typeof educationValidation>
+export type EducationDTO = z.infer<typeof educationValidation>
+
+export interface IEducation {
+    _id: string
+    id: string // Virtual id from Mongoose
+    userId: string
+
+    // Academic Details
+    schoolName: string
+    degree: string
+    fieldOfStudy: string
+
+    // Status & Dates
+    startDate: string // ISO Date String
+    endDate: string | null
+
+    // Optional Content
+    grade?: string
+    activities?: string
+    description?: string
+
+    // Metadata
+    orderPosition: number
+    __v: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface IEducationResponse {
+    message: string
+    education: IEducation
+}

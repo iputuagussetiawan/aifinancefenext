@@ -4,7 +4,7 @@ import React from 'react'
 import { Briefcase, Plus, Trash2 } from 'lucide-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
-import type { JobseekerInputType } from '@/features/onboarding/types/jobseeker-type'
+import type { JobseekerDTO } from '@/features/onboarding/types/jobseeker-type'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -17,7 +17,7 @@ const ExperienceInfo = () => {
         control,
         watch,
         formState: { errors, isSubmitting },
-    } = useFormContext<JobseekerInputType>()
+    } = useFormContext<JobseekerDTO>()
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -26,7 +26,6 @@ const ExperienceInfo = () => {
 
     const addExperience = () => {
         append({
-            userId: 'user-id', // Usually from your Auth context
             title: '',
             company: '',
             employmentType: 'Full-time',
@@ -157,7 +156,7 @@ const ExperienceInfo = () => {
                                 <Textarea
                                     {...register(`experiences.${index}.description`)}
                                     placeholder="Briefly describe your responsibilities..."
-                                    className="min-h-[100px]"
+                                    className="min-h-25"
                                 />
                             </div>
                         </div>

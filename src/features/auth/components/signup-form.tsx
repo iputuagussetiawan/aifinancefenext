@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowRight, CheckCircle2, Mail } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import { GoogleSignInButton } from '@/components/google-sign-in'
@@ -17,6 +18,8 @@ import { handleRegister } from '../actions/auth'
 import { signupValidation, type SignupInputType } from '../types/auth-type'
 
 export function SignupForm({ className, ...props }: React.ComponentProps<'form'>) {
+    const [isRegistered, setIsRegistered] = useState(false)
+    const [registeredEmail, setRegisteredEmail] = useState('')
     const router = useRouter()
 
     const {
@@ -38,7 +41,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
         const result = await handleRegister(data)
 
         if (result.success) {
-            router.push(SIGNIN_URL)
+            //router.push(SIGNIN_URL)
+            setRegisteredEmail(data.email)
+            setIsRegistered(true)
         } else {
             // 🗝️ Better UX: Show the error on the specific field instead of an alert
             setError('email', {
@@ -46,6 +51,45 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                 message: result.error || 'Registration failed',
             })
         }
+    }
+
+    if (isRegistered) {
+        return (
+            <div
+                className={cn(
+                    'animate-in fade-in zoom-in-95 flex flex-col gap-6 py-4 text-center',
+                    className,
+                )}
+            >
+                <div className="flex flex-col items-center gap-4">
+                    <div className="bg-primary/10 rounded-full p-4">
+                        <Mail className="text-primary h-10 w-10" strokeWidth={1.5} />
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-2xl font-bold">Check your email</h1>
+                        <p className="text-muted-foreground text-sm text-balance">
+                            We've sent a verification link to{' '}
+                            <span className="text-foreground font-semibold">{registeredEmail}</span>
+                            . Please click the link to activate your account.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="bg-muted/50 border-border flex gap-3 rounded-lg border p-4 text-left text-xs">
+                    <CheckCircle2 className="text-primary h-4 w-4 shrink-0" />
+                    <p>
+                        Didn't receive the email? Check your spam folder or wait a few minutes
+                        before trying again.
+                    </p>
+                </div>
+
+                <Button asChild variant="outline" className="w-full">
+                    <Link href={SIGNIN_URL} className="flex items-center justify-center gap-2">
+                        Return to Sign In <ArrowRight className="h-4 w-4" />
+                    </Link>
+                </Button>
+            </div>
+        )
     }
 
     return (

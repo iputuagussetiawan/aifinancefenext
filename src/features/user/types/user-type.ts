@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import type { IRole } from '@/features/role/types/role-type'
+
 export const personalInfoValidation = z.object({
     // --- Name & Identity ---
     firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -35,3 +37,24 @@ export const personalInfoValidation = z.object({
 
 // Extract the Type
 export type PersonalInfoInput = z.infer<typeof personalInfoValidation>
+
+export interface IUser {
+    _id: string
+    name: string
+    email: string
+    profilePicture: string | null
+    isEmailVerified: boolean
+    isActive: boolean
+    lastLogin: string | null
+    onboardingComplete: boolean
+    createdAt: string
+    updatedAt: string
+    __v: number
+}
+
+export interface IUserResponse {
+    message: string
+    user: IUser
+    role: IRole
+    joinedAt: string
+}

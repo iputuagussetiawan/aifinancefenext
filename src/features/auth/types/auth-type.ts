@@ -30,7 +30,7 @@ export type SigninInputType = z.infer<typeof signinValidation>
 export type ForgotPasswordInputType = z.infer<typeof forgotPasswordValidation>
 export type ResetPasswordInputType = z.infer<typeof resetPasswordValidation>
 
-export type ResetPasswordApiRequestType = {
+export type IResetPasswordInputType = {
     password: string // The new password
     verificationCode: string // The code/token from the URL
 }
@@ -42,6 +42,7 @@ export interface IUserProfile {
     profilePicture: string // Cloudinary URL
     isActive: boolean
     lastLogin: string | null
+    onboardingComplete: boolean
     createdAt: string // ISO Date String
     updatedAt: string // ISO Date String
 }
@@ -57,4 +58,8 @@ export interface ILoginResponse {
     message: string
     user: IUserProfile
     access_token: string
+}
+
+export interface IVerifyInputType {
+    code: string
 }

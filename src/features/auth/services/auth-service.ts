@@ -7,12 +7,12 @@ import type {
     ILoginResponse,
     IUserProfile,
     IUserResponse,
-    ResetPasswordApiRequestType,
+    IVerifyInputType,
     SigninInputType,
     SignupInputType,
 } from '../types/auth-type'
 
-export const userService = {
+export const authService = {
     // 1. Add the Register function
     register: (data: SignupInputType) =>
         api.API<IUserProfile>('/api/auth/register', {
@@ -21,22 +21,28 @@ export const userService = {
             // We usually don't cache registration attempts
             cache: 'no-store',
         }),
-
+    verify: (data: IVerifyInputType) =>
+        api.API<IUserProfile>('/api/auth/verify/email', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            // We usually don't cache registration attempts
+            cache: 'no-store',
+        }),
     login: (data: SigninInputType) =>
-        api.API<ILoginResponse>('/api/auth/login', {
+        api.API<any>('/api/auth/login', {
             method: 'POST',
             body: JSON.stringify(data),
             // We usually don't cache registration attempts
             cache: 'no-store',
         }),
     forgotPassword: (data: ForgotPasswordInputType) =>
-        api.API<IUserResponse>('/api/auth/password/forgot', {
+        api.API<any>('/api/auth/password/forgot', {
             method: 'POST',
             body: JSON.stringify(data),
             cache: 'no-store', // Always get fresh data
         }),
-    resetPassword: (data: ResetPasswordApiRequestType) =>
-        api.API<IUserResponse>('/api/auth/password/reset', {
+    resetPassword: (data: any) =>
+        api.API<any>('/api/auth/password/reset', {
             method: 'POST',
             body: JSON.stringify(data),
             cache: 'no-store', // Always get fresh data
@@ -48,7 +54,7 @@ export const userService = {
         }),
 
     logout: () =>
-        api.API<IUserResponse>('/api/auth/logout', {
+        api.API<any>('/api/auth/logout', {
             method: 'POST',
             cache: 'no-store', // Always get fresh data
         }),

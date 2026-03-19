@@ -2,8 +2,9 @@ import { Inter } from 'next/font/google'
 
 import './globals.css'
 
-import { getCurrentUser } from '@/features/auth/actions/auth'
+// import { getCurrentUser } from '@/features/auth/actions/auth'
 import { AuthProvider } from '@/features/auth/context/auth-context'
+import { getCurrentUser } from '@/features/user/actions/user'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // Initialize the Inter font
@@ -17,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     let user = null
     try {
         // Attempt to get the user
-        user = await getCurrentUser()
+        user = await getCurrentUser(true)
     } catch (error) {
         // If getCurrentUser throws 'UNAUTHORIZED', we just set user to null
         // This allows the Login page to render instead of crashing the app
