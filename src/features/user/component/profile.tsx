@@ -5,6 +5,7 @@ import { Bell, Settings, Share2, User } from 'lucide-react'
 import { useAuth } from '@/features/auth/context/auth-context'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+import PreferencesSettings from './profile-preferences'
 import ProfileSettings from './profile-setting'
 
 const Profile = () => {
@@ -35,19 +36,11 @@ const Profile = () => {
                         </TabsTrigger>
 
                         <TabsTrigger
-                            value="notifications"
-                            className="data-[state=active]:bg-secondary relative flex justify-start gap-2 bg-transparent px-4 py-2 text-sm font-normal data-[state=active]:shadow-none"
-                        >
-                            <Bell className="h-4 w-4" />
-                            Notifications
-                        </TabsTrigger>
-
-                        <TabsTrigger
                             value="connections"
                             className="data-[state=active]:bg-secondary relative flex justify-start gap-2 bg-transparent px-4 py-2 text-sm font-normal data-[state=active]:shadow-none"
                         >
                             <Share2 className="h-4 w-4" />
-                            Connections
+                            Session / Connections
                         </TabsTrigger>
                     </TabsList>
                 </aside>
@@ -59,7 +52,7 @@ const Profile = () => {
                     </TabsContent>
 
                     <TabsContent value="preferences">
-                        <div className="p-6">Preferences Content...</div>
+                        <PreferencesSettings />
                     </TabsContent>
 
                     {/* Add more TabsContent for other values here */}
