@@ -56,11 +56,6 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                 formData.append('profilePicture', fileInputRef.current.files[0])
             }
 
-            // console.log('CLIENT PAYLOAD:')
-            // for (let [key, value] of formData.entries()) {
-            //     console.log(key, value)
-            // }
-
             await handleUpdateProfile(formData) // Your Server Action
             await new Promise((resolve) => setTimeout(resolve, 1500))
 
