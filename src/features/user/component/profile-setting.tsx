@@ -130,7 +130,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                             ) : (
                                 <Save className="h-4 w-4" />
                             )}
-                            {isLoading ? 'Saving...' : 'Save Changes'}
+                            {isLoading ? 'Save Changes' : 'Save Changes'}
                         </Button>
                     </div>
                 </form>
