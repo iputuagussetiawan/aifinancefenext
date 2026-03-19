@@ -2,6 +2,11 @@ import { z } from 'zod'
 
 import type { IRole } from '@/features/role/types/role-type'
 
+// Max file size: 2MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024
+// Allowed file types
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+
 export const personalInfoValidation = z.object({
     // --- Name & Identity ---
     firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -35,8 +40,22 @@ export const personalInfoValidation = z.object({
     websiteType: z.string().optional().or(z.literal('')),
 })
 
+export const profileValidation = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    profilePicture: z
+        .instanceof(File)
+        .refine((file) => file.size <= MAX_FILE_SIZE, `Max image size is 2MB.`)
+        .refine(
+            (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+            'Only .jpg, .jpeg, .png and .webp formats are supported.',
+        )
+        .optional()
+        .nullable(),
+})
+
 // Extract the Type
 export type PersonalInfoInput = z.infer<typeof personalInfoValidation>
+export type profileDTO = z.infer<typeof profileValidation>
 
 export interface IUser {
     _id: string

@@ -1,17 +1,77 @@
+import { useRef, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Camera, Loader2, Save } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Switch } from '@/components/ui/switch'
 import { UserAvatar } from '@/components/user-avatar'
 
-import type { IUser } from '../types/user-type'
+import { handleUpdateProfile } from '../actions/user'
+import { profileValidation, type IUser, type profileDTO } from '../types/user-type'
 
 interface ProfileSettingsProps {
     user: IUser
 }
 
 export default function ProfileSettings({ user }: ProfileSettingsProps) {
+    const [isLoading, setIsLoading] = useState(false)
+    const [previewImage, setPreviewImage] = useState<string | null>(user.profilePicture)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    // 2. Initialize form
+    const form = useForm<profileDTO>({
+        resolver: zodResolver(profileValidation),
+        defaultValues: {
+            name: user.name,
+        },
+    })
+
+    // Triggered when user selects a new file
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            // 1. Create a local preview
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setPreviewImage(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+
+            // 2. Mark form as dirty so Save button enables
+            form.setValue('name', form.getValues('name'), { shouldDirty: true })
+        }
+    }
+
+    // 3. Handle Submit
+    async function onSubmit(values: profileDTO) {
+        setIsLoading(true)
+        try {
+            const formData = new FormData()
+            formData.append('name', values.name)
+
+            if (fileInputRef.current?.files?.[0]) {
+                formData.append('profilePicture', fileInputRef.current.files[0])
+            }
+
+            // console.log('CLIENT PAYLOAD:')
+            // for (let [key, value] of formData.entries()) {
+            //     console.log(key, value)
+            // }
+
+            await handleUpdateProfile(formData) // Your Server Action
+            await new Promise((resolve) => setTimeout(resolve, 1500))
+
+            toast.success('Profile updated!')
+            form.reset(values) // Reset dirty state
+        } catch (error) {
+            toast.error('Update failed')
+        } finally {
+            setIsLoading(false)
+        }
+    }
     return (
         <div className="max-w-3xl space-y-8 p-6">
             {/* Header */}
@@ -24,26 +84,61 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
 
             {/* Account Section */}
             <section className="space-y-6">
-                <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-                    Account
-                </h2>
-                <Separator />
+                <header>
+                    <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
+                        Account
+                    </h2>
+                    <Separator className="mt-2" />
+                </header>
 
-                <div className="flex items-center gap-6">
-                    <UserAvatar
-                        name={user.name}
-                        image={user.profilePicture}
-                        className="h-16 w-16"
-                    />
-                    <div className="flex-1 space-y-2">
-                        <Label htmlFor="preferred-name">Preferred name</Label>
-                        <Input
-                            id="preferred-name"
-                            defaultValue={user.name}
-                            className="bg-secondary/50 max-w-md"
-                        />
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="flex items-center gap-6">
+                        {/* Avatar Container with Hover Effect */}
+                        <div
+                            className="group relative cursor-pointer"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <UserAvatar
+                                name={user.name}
+                                image={previewImage}
+                                className="h-16 w-16 transition-opacity group-hover:opacity-80"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                                <Camera className="h-5 w-5 text-white drop-shadow-md" />
+                            </div>
+                            {/* Hidden File Input */}
+                            <input
+                                type="file"
+                                name="profilePicture"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                            />
+                        </div>
+
+                        <div className="flex-1 space-y-2">
+                            <Label htmlFor="name">Preferred name</Label>
+                            <Input
+                                {...form.register('name')}
+                                id="name"
+                                className="bg-secondary/50 max-w-md"
+                                disabled={isLoading}
+                            />
+                        </div>
                     </div>
-                </div>
+
+                    <div className="flex justify-start">
+                        <Button type="submit" disabled={isLoading} className="gap-2">
+                            {isLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Save className="h-4 w-4" />
+                            )}
+                            {isLoading ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </div>
+                </form>
             </section>
 
             {/* Account Security Section */}
@@ -75,24 +170,6 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                     <Button variant="secondary" size="sm">
                         Add password
                     </Button>
-                </div>
-            </section>
-
-            {/* Support Section */}
-            <section className="space-y-6 pt-4">
-                <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-                    Support
-                </h2>
-                <Separator />
-                <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                        <Label className="text-base">Support access</Label>
-                        <p className="text-muted-foreground max-w-md text-sm">
-                            Grant support team temporary access to your account to help troubleshoot
-                            problems.
-                        </p>
-                    </div>
-                    <Switch />
                 </div>
             </section>
         </div>

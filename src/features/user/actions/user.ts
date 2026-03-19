@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { decodeJwt } from 'jose'
@@ -7,7 +8,7 @@ import { decodeJwt } from 'jose'
 import { AUTH_COOKIE_NAME } from '@/lib/constants'
 
 import { userService } from '../services/user-service'
-import type { IUserResponse } from '../types/user-type'
+import type { IUserResponse, profileDTO } from '../types/user-type'
 
 export async function getCurrentUser(
     shouldRedirect: boolean = false,
@@ -60,5 +61,42 @@ export async function getCurrentUser(
 
         if (shouldRedirect) redirect('/signin')
         return null
+    }
+}
+
+export async function handleUpdateProfile(formData: FormData) {
+    try {
+        // 🔥 Normalize keys (VERY IMPORTANT)
+        const normalized = new Map<string, any>()
+
+        for (const [key, value] of formData.entries()) {
+            const cleanKey = key.includes('_') ? key.split('_').slice(1).join('_') : key
+            normalized.set(cleanKey, value)
+        }
+
+        const name = normalized.get('name') as string
+        const image = normalized.get('profilePicture') as File | null
+
+        // ✅ Clean FormData for API
+        const cleanFormData = new FormData()
+        cleanFormData.append('name', name)
+
+        if (image && image.size > 0) {
+            cleanFormData.append('profilePicture', image)
+        }
+
+        const result = await userService.update(cleanFormData)
+
+        revalidatePath('/dashboard/account')
+
+        return {
+            success: true,
+            result,
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error.message || 'Failed to update',
+        }
     }
 }

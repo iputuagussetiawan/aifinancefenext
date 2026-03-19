@@ -7,7 +7,6 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Switch } from '@/components/ui/switch'
 
 export default function PreferencesSettings() {
     return (
@@ -48,13 +47,12 @@ export default function PreferencesSettings() {
             </section>
 
             {/* Language & Time Section */}
-            <section className="space-y-6">
+            {/* <section className="space-y-6">
                 <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
                     Language & Time
                 </h2>
                 <Separator />
 
-                {/* Language */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                         <Label className="text-base font-medium">Language</Label>
@@ -73,7 +71,6 @@ export default function PreferencesSettings() {
                     </Select>
                 </div>
 
-                {/* Text Direction Controls */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                         <Label className="text-base font-medium">
@@ -86,7 +83,6 @@ export default function PreferencesSettings() {
                     <Switch />
                 </div>
 
-                {/* Start week on Monday */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                         <Label className="text-base font-medium">Start week on Monday</Label>
@@ -97,7 +93,6 @@ export default function PreferencesSettings() {
                     <Switch />
                 </div>
 
-                {/* Date Format */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                         <Label className="text-base font-medium">Date format</Label>
@@ -116,7 +111,6 @@ export default function PreferencesSettings() {
                     </Select>
                 </div>
 
-                {/* Timezone Auto */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                         <Label className="text-base font-medium">
@@ -129,7 +123,6 @@ export default function PreferencesSettings() {
                     <Switch defaultChecked />
                 </div>
 
-                {/* Timezone Display */}
                 <div className="flex items-center justify-between opacity-50">
                     <div className="space-y-0.5">
                         <Label className="text-base font-medium">Time zone</Label>
@@ -141,7 +134,7 @@ export default function PreferencesSettings() {
                         </SelectTrigger>
                     </Select>
                 </div>
-            </section>
+            </section> */}
         </div>
     )
 }
