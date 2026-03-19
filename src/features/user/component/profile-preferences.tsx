@@ -1,3 +1,4 @@
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Label } from '@/components/ui/label'
 import {
     Select,
@@ -33,16 +34,7 @@ export default function PreferencesSettings() {
                             Choose a theme for the application on this device
                         </p>
                     </div>
-                    <Select defaultValue="system">
-                        <SelectTrigger className="bg-secondary/50 w-[180px]">
-                            <SelectValue placeholder="Select theme" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="light">Light</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="system">Use system setting</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <ThemeToggle />
                 </div>
             </section>
 
