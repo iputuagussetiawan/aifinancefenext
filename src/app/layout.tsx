@@ -2,6 +2,9 @@ import { Inter } from 'next/font/google'
 
 import './globals.css'
 
+import QueryProvider from '@/providers/query-provider'
+import { ThemeProvider } from '@/providers/theme-provider'
+
 // import { getCurrentUser } from '@/features/auth/actions/auth'
 import { AuthProvider } from '@/features/auth/context/auth-context'
 import { getCurrentUser } from '@/features/user/actions/user'
@@ -28,9 +31,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <html lang="en" className={inter.variable}>
             {/* Apply the font to the body */}
             <body className={inter.className}>
-                <AuthProvider user={user}>
-                    <TooltipProvider>{children}</TooltipProvider>
-                </AuthProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <QueryProvider>
+                        <AuthProvider user={user}>
+                            <TooltipProvider>{children}</TooltipProvider>
+                        </AuthProvider>
+                    </QueryProvider>
+                </ThemeProvider>
             </body>
         </html>
     )

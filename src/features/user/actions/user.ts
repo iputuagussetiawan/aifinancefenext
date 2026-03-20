@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { decodeJwt } from 'jose'
@@ -60,5 +61,21 @@ export async function getCurrentUser(
 
         if (shouldRedirect) redirect('/signin')
         return null
+    }
+}
+
+export async function handleUpdateProfile(formData: FormData) {
+    try {
+        const result = await userService.update(formData)
+        revalidatePath('/dashboard/account')
+        return {
+            success: true,
+            result,
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error.message || 'Failed to update',
+        }
     }
 }

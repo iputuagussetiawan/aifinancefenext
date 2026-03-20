@@ -4,14 +4,7 @@ import { AUTH_COOKIE_NAME } from './lib/constants'
 
 // Define your route categories
 const protectedRoutes = ['/dashboard', '/onboarding']
-const authRoutes = [
-    '/signin',
-    '/signup',
-    '/register',
-    '/confirm-account',
-    '/forgot-password',
-    '/reset-password',
-]
+const authRoutes = ['/signin', '/signup', '/register', '/forgot-password', '/reset-password']
 
 export default function middleware(request: NextRequest) {
     const { pathname, search } = request.nextUrl
