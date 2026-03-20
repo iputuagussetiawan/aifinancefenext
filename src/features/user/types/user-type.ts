@@ -41,21 +41,43 @@ export const personalInfoValidation = z.object({
 })
 
 export const profileValidation = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
+    name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name is too long'),
+
+    // 📧 Email Validation
+    email: z
+        .string()
+        .email('Invalid email address')
+        .toLowerCase()
+        .trim()
+        .optional()
+        .or(z.literal('')), // Allows empty string
+
+    // 🔑 Password Validation
+    password: z
+        .string()
+        .min(8, 'Password must be at least 8 characters')
+        .max(100, 'Password is too long')
+        .optional()
+        .or(z.literal('')),
+
+    // 🖼️ Profile Picture Validation
     profilePicture: z
-        .instanceof(File)
-        .refine((file) => file.size <= MAX_FILE_SIZE, `Max image size is 2MB.`)
+        .custom<File | undefined>()
+        .refine((file) => !file || file.size <= MAX_FILE_SIZE, `Max image size is 2MB.`)
         .refine(
-            (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+            (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
             'Only .jpg, .jpeg, .png and .webp formats are supported.',
         )
         .optional()
         .nullable(),
 })
 
+export const updateProfileValidation = profileValidation.partial()
+
 // Extract the Type
 export type PersonalInfoInput = z.infer<typeof personalInfoValidation>
 export type profileDTO = z.infer<typeof profileValidation>
+export type UpdateProfileDTO = z.infer<typeof updateProfileValidation>
 
 export interface IUser {
     _id: string

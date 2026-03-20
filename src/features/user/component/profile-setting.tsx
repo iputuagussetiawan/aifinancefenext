@@ -5,6 +5,17 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog'
+import { Field, FieldGroup } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
@@ -12,15 +23,21 @@ import { UserAvatar } from '@/components/user-avatar'
 
 import { handleUpdateProfile } from '../actions/user'
 import { profileValidation, type IUser, type profileDTO } from '../types/user-type'
+import ManageEmail from './profile-setting/manage-email'
 
 interface ProfileSettingsProps {
     user: IUser
 }
 
+type DialogType = 'email' | 'password' | 'edit' | null
+
 export default function ProfileSettings({ user }: ProfileSettingsProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [previewImage, setPreviewImage] = useState<string | null>(user.profilePicture)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const [activeDialog, setActiveDialog] = useState<DialogType>(null) // State to control dialog
+    const [isProfileSettingDialog, setIsProfileSettingDialog] = useState(false)
+
     // 2. Initialize form
     const form = useForm<profileDTO>({
         resolver: zodResolver(profileValidation),
@@ -149,7 +166,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                         <Label className="text-base">Email</Label>
                         <p className="text-muted-foreground text-sm">{user.email}</p>
                     </div>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" onClick={() => setActiveDialog('email')}>
                         Manage emails
                     </Button>
                 </div>
@@ -162,11 +179,44 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                             Set a password for your account
                         </p>
                     </div>
-                    <Button variant="secondary" size="sm">
-                        Add password
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setActiveDialog('password')}
+                    >
+                        Manage password
                     </Button>
                 </div>
             </section>
+
+            <Dialog
+                open={activeDialog !== null}
+                onOpenChange={(open) => !open && setActiveDialog(null)}
+            >
+                <DialogContent className="sm:max-w-sm">
+                    {activeDialog === 'email' && (
+                        <ManageEmail user={user} onSuccess={() => setActiveDialog(null)} />
+                    )}
+
+                    {activeDialog === 'password' && (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle>Change Password</DialogTitle>
+                                <DialogDescription>Choose a strong password.</DialogDescription>
+                            </DialogHeader>
+                            <FieldGroup className="py-4">
+                                <Input type="password" placeholder="New Password" />
+                                <Input type="password" placeholder="Confirm Password" />
+                            </FieldGroup>
+                            <DialogFooter>
+                                <Button onClick={() => setActiveDialog(null)}>
+                                    Update Password
+                                </Button>
+                            </DialogFooter>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
