@@ -28,7 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         console.log('No active session found (User is logged out)')
     }
     return (
-        <html lang="en" className={inter.variable}>
+        <html lang="en" className={inter.variable} suppressHydrationWarning>
             {/* Apply the font to the body */}
             <body className={inter.className}>
                 <ThemeProvider
