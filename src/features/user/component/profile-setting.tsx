@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Camera, Loader2, Save } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -22,7 +23,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { UserAvatar } from '@/components/user-avatar'
 
-import { handleUpdateProfile } from '../actions/user'
+import { userService } from '../services/user-service'
 import { profileValidation, type profileDTO } from '../types/user-type'
 import ManageEmail from './profile-setting/manage-email'
 
@@ -33,11 +34,33 @@ interface ProfileSettingsProps {
 type DialogType = 'email' | 'password' | 'edit' | null
 
 export default function ProfileSettings({ user }: ProfileSettingsProps) {
-    const [isLoading, setIsLoading] = useState(false)
     const [previewImage, setPreviewImage] = useState<string | null>(user.profilePicture)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [activeDialog, setActiveDialog] = useState<DialogType>(null) // State to control dialog
-    const [isProfileSettingDialog, setIsProfileSettingDialog] = useState(false)
+
+    const queryClient = useQueryClient()
+
+    // 1. Define the Mutation
+    // 1. Define the Mutation
+    const { mutate: updateProfile, isPending } = useMutation({
+        mutationFn: (formData: FormData) => userService.update(formData),
+
+        // 2. What happens on success?
+        onSuccess: (data) => {
+            // Tells the whole app the user data has changed
+            queryClient.invalidateQueries({ queryKey: ['authUser'] })
+
+            toast.success('Profile updated successfully!')
+
+            // Sync the form dirty state
+            form.reset(form.getValues())
+        },
+
+        // 3. What happens on error?
+        onError: (error: any) => {
+            toast.error(error.message || 'Failed to update profile')
+        },
+    })
 
     // 2. Initialize form
     const form = useForm<profileDTO>({
@@ -64,26 +87,17 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     }
 
     // 3. Handle Submit
-    async function onSubmit(values: profileDTO) {
-        setIsLoading(true)
-        try {
-            const formData = new FormData()
-            formData.append('name', values.name)
+    // 4. Clean Submit Handler
+    function onSubmit(values: profileDTO) {
+        const formData = new FormData()
+        formData.append('name', values.name)
 
-            if (fileInputRef.current?.files?.[0]) {
-                formData.append('profilePicture', fileInputRef.current.files[0])
-            }
-
-            await handleUpdateProfile(formData) // Your Server Action
-            await new Promise((resolve) => setTimeout(resolve, 1500))
-
-            toast.success('Profile updated!')
-            form.reset(values) // Reset dirty state
-        } catch (error) {
-            toast.error('Update failed')
-        } finally {
-            setIsLoading(false)
+        if (fileInputRef.current?.files?.[0]) {
+            formData.append('profilePicture', fileInputRef.current.files[0])
         }
+
+        // Direct execution via mutate
+        updateProfile(formData)
     }
     return (
         <div className="max-w-3xl space-y-8 p-6">
@@ -136,19 +150,15 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                                 {...form.register('name')}
                                 id="name"
                                 className="bg-secondary/50 max-w-md"
-                                disabled={isLoading}
+                                disabled={isPending}
                             />
                         </div>
                     </div>
 
                     <div className="flex justify-start">
-                        <Button type="submit" disabled={isLoading} className="gap-2">
-                            {isLoading ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <Save className="h-4 w-4" />
-                            )}
-                            {isLoading ? 'Save Changes' : 'Save Changes'}
+                        <Button type="submit" disabled={isPending}>
+                            {isPending ? <Loader2 className="animate-spin" /> : <Save />}
+                            Save Changes
                         </Button>
                     </div>
                 </form>
