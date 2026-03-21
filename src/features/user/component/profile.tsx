@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuthContext } from '@/providers/auth-provider'
 import { Settings, Share2, User } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/context/auth-context'
@@ -10,7 +11,7 @@ import PreferencesSettings from './profile-preferences'
 import ProfileSettings from './profile-setting'
 
 const Profile = () => {
-    const { user } = useAuth()
+    const { isLoading, user } = useAuthContext()
     return (
         <div className="flex flex-col space-y-6 pb-16 md:block">
             <Tabs
@@ -22,9 +23,11 @@ const Profile = () => {
                     <TabsList className="flex w-full flex-row space-x-2 bg-transparent lg:flex-col lg:space-y-1 lg:space-x-0">
                         <TabsTrigger
                             value="profile"
-                            className="data-[state=active]:bg-secondary relative flex justify-start gap-2 bg-transparent px-4 py-2 text-sm font-normal data-[state=active]:shadow-none"
+                            className="data-[state=active]:bg-secondary data-[state=active]:text-primary hover:bg-muted/50 relative flex w-full items-center justify-start gap-3 bg-transparent px-4 py-2.5 text-sm font-medium transition-all data-[state=active]:shadow-none"
                         >
-                            <User className="h-4 w-4" />I Putu Agus Setiawan
+                            <User className="h-4 w-4 shrink-0 opacity-70" />
+                            <span className="truncate">{user?.name || 'User Profile'}</span>
+                            <div className="bg-primary absolute inset-y-1 left-0 w-1 rounded-full opacity-0 transition-opacity data-[state=active]:group-hover:opacity-100" />
                         </TabsTrigger>
 
                         <TabsTrigger
@@ -47,7 +50,7 @@ const Profile = () => {
 
                 <div className="flex-1 lg:max-w-4xl">
                     <TabsContent value="profile" className="mt-0 border-none p-0">
-                        {user?.user && <ProfileSettings user={user.user} />}
+                        {user && <ProfileSettings user={user} />}
                     </TabsContent>
 
                     <TabsContent value="preferences">

@@ -50,8 +50,13 @@ class FetchFactory {
             credentials: options.credentials || 'include',
         })
 
+        console.log(response.status)
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}))
+
+            console.log(response.status)
+
             throw new Error(errorData.message || `API Error ${response.status}`)
         }
 

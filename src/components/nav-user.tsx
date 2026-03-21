@@ -2,7 +2,7 @@
 
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, Sparkles } from 'lucide-react'
 
-import type { IUser } from '@/features/user/types/user-type'
+import type { IUser } from '@/features/session/types/session-type'
 import {
     DropdownMenu,
     DropdownMenuContent,

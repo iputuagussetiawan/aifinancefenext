@@ -4,6 +4,7 @@ import { Camera, Loader2, Save } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
+import type { IUser } from '@/features/session/types/session-type'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -22,7 +23,7 @@ import { Separator } from '@/components/ui/separator'
 import { UserAvatar } from '@/components/user-avatar'
 
 import { handleUpdateProfile } from '../actions/user'
-import { profileValidation, type IUser, type profileDTO } from '../types/user-type'
+import { profileValidation, type profileDTO } from '../types/user-type'
 import ManageEmail from './profile-setting/manage-email'
 
 interface ProfileSettingsProps {
@@ -174,7 +175,7 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
                 {/* Password Row */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                        <Label className="text-base">Password</Label>
+                        <Label className="text-base">Password (On Progress dev... )</Label>
                         <p className="text-muted-foreground text-sm">
                             Set a password for your account
                         </p>

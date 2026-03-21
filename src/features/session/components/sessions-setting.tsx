@@ -1,13 +1,11 @@
 'use client'
 
-import React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 
 import { parseUserAgent } from '@/lib/user-agent-parser'
 
 import { sessionService } from '../services/session-service'
-import type { ISession } from '../types/session-type'
 import SessionItem from './session-item'
 
 export default function SessionSetting() {

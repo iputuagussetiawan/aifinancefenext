@@ -57,6 +57,12 @@ export async function getCurrentUser(
         // Jika error dari API adalah 401 (Unauthorized), hapus token
         if (error.response?.status === 401) {
             cookieStore.delete(AUTH_COOKIE_NAME)
+            shouldRedirect = true
+        }
+
+        if (error.status === 401) {
+            // Clear the cookie client-side or redirect
+            redirect('/signin')
         }
 
         if (shouldRedirect) redirect('/signin')
