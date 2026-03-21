@@ -1,65 +1,53 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { Chrome, Globe, Laptop, Loader2, Monitor, Smartphone } from 'lucide-react'
+import React from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 
-import { handleGetAllSessions } from '../actions/session-action'
+import { parseUserAgent } from '@/lib/user-agent-parser'
+
+import { sessionService } from '../services/session-service'
 import type { ISession } from '../types/session-type'
 import SessionItem from './session-item'
 
 export default function SessionSetting() {
-    const [sessions, setSessions] = useState<ISession[]>([])
-    const [isLoading, setIsLoading] = useState(true) // Start as true if fetching on mount
-    const [error, setError] = useState<string | null>(null)
+    const queryClient = useQueryClient()
 
-    const fetchSessions = async () => {
-        setIsLoading(true)
-        const result = await handleGetAllSessions()
+    // 1. Fetch Sessions Query
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ['sessions'],
+        queryFn: () => sessionService.getAll(),
+        select: (data) => data.sessions || [], // Extract the sessions array from response
+    })
 
-        if (result.success) {
-            setSessions(result.sessions || [])
-        } else {
-            setError(result.error || 'Something went wrong')
-        }
-        setIsLoading(false)
+    // 2. Delete Session Mutation
+    const { mutate: deleteSession, isPending: isDeleting } = useMutation({
+        mutationFn: (id: string) => sessionService.delete(id),
+        onSuccess: () => {
+            // Invalidate and refetch sessions after a delete
+            queryClient.invalidateQueries({ queryKey: ['sessions'] })
+        },
+    })
+
+    // Helper to parse UA strings
+
+    if (isLoading) {
+        return (
+            <div className="flex h-40 items-center justify-center">
+                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+            </div>
+        )
     }
 
-    useEffect(() => {
-        fetchSessions()
-    }, [])
-
-    // 3. Helper to parse UA strings
-    const getSessionDetails = (ua: string) => {
-        const lowerUA = ua.toLowerCase()
-        let Icon = Monitor
-        let browser = 'Unknown Browser'
-        let os = 'Unknown OS'
-
-        if (lowerUA.includes('chrome')) browser = 'Chrome'
-        else if (lowerUA.includes('safari')) browser = 'Safari'
-        else if (lowerUA.includes('apidog')) browser = 'Apidog'
-        else if (lowerUA.includes('node')) browser = 'Node.js'
-
-        if (lowerUA.includes('windows')) os = 'Windows'
-        else if (lowerUA.includes('mac os')) os = 'macOS'
-        else if (lowerUA.includes('linux')) os = 'Linux'
-        else os = 'Web Client'
-
-        if (browser === 'Chrome') Icon = Chrome
-        if (os === 'Windows' || os === 'macOS') Icon = Laptop
-
-        return { Icon, browser, os }
+    if (isError) {
+        return (
+            <div className="text-destructive p-4 text-center">
+                {(error as any)?.message || 'Failed to load sessions'}
+            </div>
+        )
     }
 
-    const handleDelete = (id: string) => {
-        setIsLoading(true)
-        // Simulate API call
-        setTimeout(() => {
-            setSessions((prev) => prev.filter((s) => s._id !== id))
-            setIsLoading(false)
-        }, 1000)
-    }
-
+    const sessions = data || []
     const currentSession = sessions.find((s) => s.isCurrent)
     const otherSessions = sessions.filter((s) => !s.isCurrent)
 
@@ -74,9 +62,10 @@ export default function SessionSetting() {
                 {currentSession && (
                     <SessionItem
                         session={{ _id: currentSession._id, isCurrent: true }}
-                        parsedDetails={getSessionDetails(currentSession.userAgent)}
+                        parsedDetails={parseUserAgent(currentSession.userAgent)}
                         timeAgo="Active now"
-                        onDelete={handleDelete}
+                        onDelete={(id) => deleteSession(id)}
+                        loading={isDeleting}
                     />
                 )}
             </div>
@@ -90,10 +79,10 @@ export default function SessionSetting() {
                             <SessionItem
                                 key={session._id}
                                 session={{ _id: session._id, isCurrent: false }}
-                                parsedDetails={getSessionDetails(session.userAgent)}
-                                timeAgo="Last active 2 days ago"
-                                loading={isLoading}
-                                onDelete={handleDelete}
+                                parsedDetails={parseUserAgent(session.userAgent)}
+                                timeAgo="Last active recently"
+                                loading={isDeleting}
+                                onDelete={(id) => deleteSession(id)}
                             />
                         ))
                     ) : (

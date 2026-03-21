@@ -9,4 +9,9 @@ export const sessionService = {
             method: 'GET',
             cache: 'no-store',
         }),
+    delete: (id: string) =>
+        api.API<ISessionResponse>(`/api/session/${id}`, {
+            method: 'DELETE',
+            cache: 'no-store',
+        }),
 }
