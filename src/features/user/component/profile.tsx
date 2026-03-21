@@ -1,8 +1,9 @@
 'use client'
 
-import { Bell, Settings, Share2, User } from 'lucide-react'
+import { Settings, Share2, User } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/context/auth-context'
+import SessionSetting from '@/features/session/components/sessions-setting'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import PreferencesSettings from './profile-preferences'
@@ -17,7 +18,6 @@ const Profile = () => {
                 orientation="vertical"
                 className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12"
             >
-                {/* Vertical Sidebar Tabs */}
                 <aside className="m-0 lg:w-1/5">
                     <TabsList className="flex w-full flex-row space-x-2 bg-transparent lg:flex-col lg:space-y-1 lg:space-x-0">
                         <TabsTrigger
@@ -45,7 +45,6 @@ const Profile = () => {
                     </TabsList>
                 </aside>
 
-                {/* Content Area */}
                 <div className="flex-1 lg:max-w-4xl">
                     <TabsContent value="profile" className="mt-0 border-none p-0">
                         {user?.user && <ProfileSettings user={user.user} />}
@@ -55,7 +54,9 @@ const Profile = () => {
                         <PreferencesSettings />
                     </TabsContent>
 
-                    {/* Add more TabsContent for other values here */}
+                    <TabsContent value="connections">
+                        <SessionSetting />
+                    </TabsContent>
                 </div>
             </Tabs>
         </div>
