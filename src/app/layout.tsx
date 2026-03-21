@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/providers/theme-provider'
 // import { getCurrentUser } from '@/features/auth/actions/auth'
 // import { AuthProvider } from '@/features/auth/context/auth-context'
 import { getCurrentUser } from '@/features/user/actions/user'
+import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // Initialize the Inter font
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         </AuthProvider>
                     </QueryProvider>
                 </ThemeProvider>
+                <Toaster />
             </body>
         </html>
     )

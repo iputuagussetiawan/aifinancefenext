@@ -41,16 +41,15 @@ export default function ProfileSettings({ user }: ProfileSettingsProps) {
     const queryClient = useQueryClient()
 
     // 1. Define the Mutation
-    // 1. Define the Mutation
     const { mutate: updateProfile, isPending } = useMutation({
         mutationFn: (formData: FormData) => userService.update(formData),
 
         // 2. What happens on success?
-        onSuccess: (data) => {
+        onSuccess: () => {
             // Tells the whole app the user data has changed
             queryClient.invalidateQueries({ queryKey: ['authUser'] })
 
-            toast.success('Profile updated successfully!')
+            toast.success('Profile updated successfully!', { position: 'top-center' })
 
             // Sync the form dirty state
             form.reset(form.getValues())
