@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation' // 🗝️ For redirecting after login
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
 import { GoogleSignInButton } from '@/components/google-sign-in'
@@ -12,17 +13,16 @@ import { UiFormInput } from '@/components/ui/UiFormInput'
 import { ONBOARDING_URL, SIGNUP_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
-import { handleLogin } from '../actions/auth' // Ensure this exists
+import { authService } from '../services/auth-service'
 import { signinValidation, type SigninInputType } from '../types/auth-type'
 
 export function SignInForm({ className, ...props }: React.ComponentProps<'form'>) {
     const router = useRouter()
-
     const {
         register,
         handleSubmit,
         setError,
-        formState: { errors, isSubmitting },
+        formState: { errors },
     } = useForm<SigninInputType>({
         resolver: zodResolver(signinValidation),
         defaultValues: {
@@ -31,19 +31,27 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
         },
     })
 
-    const onSubmit = async (data: SigninInputType) => {
-        const result = await handleLogin(data)
+    const { mutate, isPending } = useMutation({
+        mutationFn: (data: SigninInputType) => authService.login(data),
+        onSuccess: (result) => {
+            // Adjust this based on whether your service returns a boolean or throws
+            if (result) {
+                router.push(ONBOARDING_URL)
+                router.refresh()
+            }
+        },
+        onError: (error: any) => {
+            // Highlight fields on failure
+            setError('email', { type: 'manual', message: ' ' })
+            setError('password', {
+                type: 'manual',
+                message: error.message || 'Invalid email or password',
+            })
+        },
+    })
 
-        if (result.success) {
-            // 🚀 Move the user to the dashboard or trading floor
-            console.log(result.user)
-            router.push(ONBOARDING_URL)
-            router.refresh()
-        } else {
-            // 🗝️ If login fails, highlight both fields or show a specific message
-            setError('email', { type: 'manual', message: ' ' }) // Invisible error to turn border red
-            setError('password', { type: 'manual', message: result.error || 'Invalid credentials' })
-        }
+    const onSubmit = (data: SigninInputType) => {
+        mutate(data)
     }
 
     return (
@@ -66,7 +74,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
                     id="email"
                     type="email"
                     placeholder="m@example.com"
-                    isSubmitting={isSubmitting}
+                    isSubmitting={isPending}
                     error={errors.email}
                     {...register('email')}
                 />
@@ -86,14 +94,14 @@ export function SignInForm({ className, ...props }: React.ComponentProps<'form'>
                         id="password"
                         type="password"
                         placeholder="your password"
-                        isSubmitting={isSubmitting}
+                        isSubmitting={isPending}
                         error={errors.email}
                         {...register('password')}
                     />
                 </div>
 
-                <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-                    {isSubmitting ? (
+                <Button type="submit" disabled={isPending} className="mt-2 w-full">
+                    {isPending ? (
                         <span className="flex items-center gap-2">
                             <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             Signing in...
