@@ -61,12 +61,11 @@ const MyResume = () => {
                     color: '#000000',
                 }}
             >
-                <ResumeWrapper pageNumber={2} totalPages={2}>
+                <ResumeWrapper pageNumber={1} totalPages={2}>
                     <ResumeAbout />
                     <ResumeExpOne />
                 </ResumeWrapper>
                 <ResumeWrapper pageNumber={2} totalPages={2}>
-                    <ResumeAbout />
                     <ResumeExpOne />
                 </ResumeWrapper>
             </div>
