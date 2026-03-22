@@ -154,7 +154,7 @@ const MyResume = () => {
                             <div className="mb-4 flex items-center gap-4">
                                 <h2
                                     className="text-sm font-bold whitespace-nowrap uppercase"
-                                    style={{ tracking: '0.3em', color: '#1a1a1a' }}
+                                    style={{ color: '#1a1a1a' }}
                                 >
                                     About Me
                                 </h2>
