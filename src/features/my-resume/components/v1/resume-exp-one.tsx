@@ -135,15 +135,12 @@ const ResumeExpOne = () => {
                 >
                     Experience
                 </h2>
-                <div className="mb-6 h-[1px] w-full" style={{ backgroundColor: '#d1d5db' }}></div>
+                <div className="mb-6 h-px w-full" style={{ backgroundColor: '#d1d5db' }}></div>
 
                 {[
                     { title: 'Senior Graphic Designer', date: 'From 2017 Present' },
                     { title: 'Web Designer & Developer', date: 'From 2018 - 2019' },
                     { title: 'Senior UI/UX Designer', date: 'From 2020 - 2021' },
-                    { title: 'Senior UI/UX Designer', date: 'From 2019 - 2020' },
-                    { title: 'Senior UI/UX Designer', date: 'From 2019 - 2020' },
-                    { title: 'Senior UI/UX Designer', date: 'From 2019 - 2020' },
                 ].map((job, i) => (
                     <div key={i} className="relative mb-8 pl-4">
                         {/* Timeline Dot */}

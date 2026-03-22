@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 
 import ResumeAbout from './v1/resume-about'
 import ResumeExpOne from './v1/resume-exp-one'
-import ResumeHeader from './v1/resume-header'
+import ResumeWrapper from './v1/resume-wrapper'
 
 const MyResume = () => {
     const targetRef = useRef<HTMLDivElement>(null)
@@ -50,7 +50,7 @@ const MyResume = () => {
     return (
         <div className="flex min-h-screen flex-col items-center p-8">
             {/* 3. Use the shadcn Button component */}
-            <Button onClick={handleDownload} className="mb-8 gap-2">
+            <Button onClick={handleDownload} className="sticky top-4 z-50 mb-8 shadow-lg">
                 <FileDown className="h-4 w-4" />
                 Download Resume PDF
             </Button>
@@ -61,11 +61,14 @@ const MyResume = () => {
                     color: '#000000',
                 }}
             >
-                <div className="wrapper" style={{ width: '794px' }}>
-                    <ResumeHeader />
+                <ResumeWrapper pageNumber={2} totalPages={2}>
                     <ResumeAbout />
                     <ResumeExpOne />
-                </div>
+                </ResumeWrapper>
+                <ResumeWrapper pageNumber={2} totalPages={2}>
+                    <ResumeAbout />
+                    <ResumeExpOne />
+                </ResumeWrapper>
             </div>
         </div>
     )
