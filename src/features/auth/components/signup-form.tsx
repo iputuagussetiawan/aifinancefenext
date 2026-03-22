@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { ArrowRight, CheckCircle2, Mail } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
@@ -14,7 +15,7 @@ import { UiFormInput } from '@/components/ui/UiFormInput'
 import { SIGNIN_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
-import { handleRegister } from '../actions/auth'
+import { authService } from '../services/auth-service'
 import { signupValidation, type SignupInputType } from '../types/auth-type'
 
 export function SignupForm({ className, ...props }: React.ComponentProps<'form'>) {
@@ -26,7 +27,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
         register,
         handleSubmit,
         setError,
-        formState: { errors, isSubmitting },
+        formState: { errors },
     } = useForm<SignupInputType>({
         resolver: zodResolver(signupValidation),
         defaultValues: {
@@ -37,20 +38,29 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
         },
     })
 
-    const onSubmit = async (data: SignupInputType) => {
-        const result = await handleRegister(data)
+    const { mutate, isPending } = useMutation({
+        // 2. Call the service directly here
+        mutationFn: (data: SignupInputType) => authService.register(data),
 
-        if (result.success) {
-            //router.push(SIGNIN_URL)
-            setRegisteredEmail(data.email)
-            setIsRegistered(true)
-        } else {
-            // 🗝️ Better UX: Show the error on the specific field instead of an alert
+        onSuccess: (result, variables) => {
+            // Since your service likely returns the raw data or throws on error,
+            // you might need to adjust this check based on your API's response shape.
+            if (result) {
+                setRegisteredEmail(variables.email)
+                setIsRegistered(true)
+            }
+        },
+        onError: (error: any) => {
+            // 3. The service usually throws an error, so handle it here
             setError('email', {
                 type: 'manual',
-                message: result.error || 'Registration failed',
+                message: error.message || 'Registration failed',
             })
-        }
+        },
+    })
+
+    const onSubmit = async (data: SignupInputType) => {
+        mutate(data)
     }
 
     if (isRegistered) {
@@ -111,7 +121,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                     label="Full Name"
                     id="name"
                     placeholder="John Doe"
-                    isSubmitting={isSubmitting}
+                    isSubmitting={isPending}
                     error={errors.name}
                     {...register('name')}
                 />
@@ -122,7 +132,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                     id="email"
                     type="email"
                     placeholder="m@example.com"
-                    isSubmitting={isSubmitting}
+                    isSubmitting={isPending}
                     error={errors.email}
                     {...register('email')}
                 />
@@ -133,7 +143,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    isSubmitting={isSubmitting}
+                    isSubmitting={isPending}
                     error={errors.password}
                     {...register('password')}
                 />
@@ -144,13 +154,13 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'form'>
                     id="confirmPassword"
                     type="password"
                     placeholder="••••••••"
-                    isSubmitting={isSubmitting}
+                    isSubmitting={isPending}
                     error={errors.confirmPassword}
                     {...register('confirmPassword')}
                 />
 
-                <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-                    {isSubmitting ? (
+                <Button type="submit" disabled={isPending} className="mt-2 w-full">
+                    {isPending ? (
                         <span className="flex items-center gap-2">
                             <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             Creating account...

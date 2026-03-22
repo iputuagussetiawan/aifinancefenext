@@ -8,7 +8,7 @@ import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 export function LogoutMenuItem() {
     const [isPending, startTransition] = useTransition()
-    const handleAction = () => {
+    const handleLogoutAction = () => {
         startTransition(async () => {
             await handleLogout()
         })
@@ -16,7 +16,7 @@ export function LogoutMenuItem() {
 
     return (
         <DropdownMenuItem
-            onClick={handleAction}
+            onClick={handleLogoutAction}
             disabled={isPending}
             className="text-destructive focus:text-destructive cursor-pointer"
         >

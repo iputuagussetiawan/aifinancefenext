@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { CheckCircle2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { useMutation } from '@tanstack/react-query'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -11,38 +12,32 @@ import { FieldGroup } from '@/components/ui/field'
 import { SIGNIN_URL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
-import { handleVerifyEmail } from '../actions/auth'
+import { authService } from '../services/auth-service'
 import { type IVerifyInputType } from '../types/auth-type'
 
 export function ConfirmAccountForm({ className, ...props }: React.ComponentProps<'form'>) {
-    const router = useRouter()
     const searchParams = useSearchParams()
-    const [serverError, setServerError] = useState<string | null>(null)
-    const [isSuccess, setIsSuccess] = useState(false)
     const verificationCode = searchParams.get('code')
 
-    const {
-        handleSubmit,
-        formState: { isSubmitting },
-    } = useForm<IVerifyInputType>({
+    const { mutate, isPending, isSuccess, error, isError } = useMutation({
+        mutationFn: (data: IVerifyInputType) => authService.verify(data),
+        // Optional: Auto-redirect after 3 seconds on success
+        onSuccess: () => {
+            setTimeout(() => {
+                // window.location.assign(SIGNIN_URL)
+            }, 3000)
+        },
+    })
+
+    const { handleSubmit } = useForm<IVerifyInputType>({
         defaultValues: {
             code: verificationCode || '',
         },
     })
 
-    const onSubmit = async () => {
-        setServerError(null)
-        const result = await handleVerifyEmail({
-            code: verificationCode || '',
-        })
-        if (result.success) {
-            setIsSuccess(true)
-        } else {
-            setServerError(
-                result.error ||
-                    'Failed to verify account. The link may be invalid or already used.',
-            )
-        }
+    const onSubmit = () => {
+        if (!verificationCode) return
+        mutate({ code: verificationCode })
     }
 
     if (isSuccess) {
@@ -85,14 +80,15 @@ export function ConfirmAccountForm({ className, ...props }: React.ComponentProps
                     </p>
                 </div>
 
-                {serverError && (
-                    <div className="bg-destructive/10 text-destructive border-destructive/20 rounded-md border p-3 text-center text-xs">
-                        {serverError}
+                {isError && (
+                    <div className="bg-destructive/10 text-destructive border-destructive/20 flex items-center gap-2 rounded-md border p-3 text-left text-xs">
+                        <AlertCircle className="h-4 w-4 shrink-0" />
+                        <p>{(error as any)?.message || 'Invalid or expired verification link.'}</p>
                     </div>
                 )}
 
-                <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-                    {isSubmitting ? 'Verifying...' : 'Verify My Account'}
+                <Button type="submit" disabled={isPending} className="mt-2 w-full">
+                    {isPending ? 'Verifying...' : 'Verify My Account'}
                 </Button>
             </FieldGroup>
         </form>

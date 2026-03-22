@@ -65,7 +65,7 @@ export default function SessionItem({
                 </div>
 
                 {/* Delete Button - Only shown if not current session */}
-                {!session.isCurrent && (
+                {/* {!session.isCurrent && (
                     <Button
                         variant="ghost"
                         size="icon"
@@ -79,7 +79,7 @@ export default function SessionItem({
                             <Trash2 className="size-4" />
                         )}
                     </Button>
-                )}
+                )} */}
             </div>
         </div>
     )

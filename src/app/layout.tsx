@@ -2,12 +2,14 @@ import { Inter } from 'next/font/google'
 
 import './globals.css'
 
+import { AuthProvider } from '@/providers/auth-provider'
 import QueryProvider from '@/providers/query-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 
 // import { getCurrentUser } from '@/features/auth/actions/auth'
-import { AuthProvider } from '@/features/auth/context/auth-context'
+// import { AuthProvider } from '@/features/auth/context/auth-context'
 import { getCurrentUser } from '@/features/user/actions/user'
+import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // Initialize the Inter font
@@ -38,11 +40,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     disableTransitionOnChange
                 >
                     <QueryProvider>
-                        <AuthProvider user={user}>
+                        <AuthProvider>
                             <TooltipProvider>{children}</TooltipProvider>
                         </AuthProvider>
                     </QueryProvider>
                 </ThemeProvider>
+                <Toaster />
             </body>
         </html>
     )
