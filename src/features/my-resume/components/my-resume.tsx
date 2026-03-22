@@ -78,9 +78,9 @@ const MyResume = () => {
                             {/* Gray Contact Block */}
                             <div className="relative flex w-[320px] flex-col justify-center pt-8 pr-16 pl-6 text-white">
                                 {/* The Yellow Stripe */}
-                                <div className="absolute top-0 right-15 h-full w-8 bg-[#f1c40f]"></div>
+                                <div className="absolute top-0 right-15 z-0 h-full w-8 bg-[#f1c40f]"></div>
 
-                                <div className="z-10 space-y-3">
+                                <div className="relative z-10 space-y-3">
                                     {[
                                         { text: 'Address Name, Australia', Icon: MapPin },
                                         { text: '+457 123 4567 8912', Icon: Phone },
@@ -94,7 +94,7 @@ const MyResume = () => {
                                             <span className="text-[12px] text-[#1a1a1a]">
                                                 {item.text}
                                             </span>
-                                            <div className="p-1">
+                                            <div className="relative top-1 p-1">
                                                 <item.Icon size={14} className="text-[#1a1a1a]" />
                                             </div>
                                         </div>
@@ -142,6 +142,7 @@ const MyResume = () => {
                                         style={{
                                             width: '128px',
                                             height: '128px',
+                                            objectFit: 'cover',
                                         }}
                                     />
                                 </div>

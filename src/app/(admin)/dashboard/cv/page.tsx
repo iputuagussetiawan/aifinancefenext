@@ -1,5 +1,3 @@
-import React from 'react'
-
 import MyResume from '@/features/my-resume/components/my-resume'
 
 const MyResumePage = () => {
@@ -9,5 +7,4 @@ const MyResumePage = () => {
         </div>
     )
 }
-
 export default MyResumePage
