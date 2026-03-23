@@ -6,6 +6,7 @@ import generatePDF, { Margin, Resolution, type Options } from 'react-to-pdf'
 
 import { Button } from '@/components/ui/button'
 
+import MyResumeToolbar from './my-resume-toolbar'
 import ResumeAbout from './v1/resume-about'
 import ResumeExpOne from './v1/resume-exp-one'
 import ResumeWrapper from './v1/resume-wrapper'
@@ -69,6 +70,7 @@ const MyResume = () => {
                     <ResumeExpOne />
                 </ResumeWrapper>
             </div>
+            <MyResumeToolbar />
         </div>
     )
 }
