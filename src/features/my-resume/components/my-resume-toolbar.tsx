@@ -1,9 +1,21 @@
-import { Download, ExternalLink, Monitor } from 'lucide-react'
+import { Download, ExternalLink, FileDown, Loader2, Monitor } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-export default function MyResumeToolbar() {
+type MyResumeToolbarProps = {
+    onPreview: () => void
+    onDownload: () => void
+    isPreviewing: boolean
+    isLoading: boolean
+}
+
+export default function MyResumeToolbar({
+    onPreview,
+    onDownload,
+    isPreviewing,
+    isLoading,
+}: MyResumeToolbarProps) {
     return (
         <div className="sticky bottom-4 z-50 mb-8 flex w-fit items-center gap-1 rounded-2xl bg-[#222222] p-2 text-white shadow-2xl">
             {/* Logo Section */}
@@ -34,15 +46,40 @@ export default function MyResumeToolbar() {
             {/* CTA Button */}
             <div className="flex gap-2">
                 {/* Preview Button */}
-                <Button className="ml-1 h-12 rounded-xl bg-[#FFF38A] px-6 font-bold text-black hover:bg-[#ffe945]">
-                    <Monitor className="mr-2 h-5 w-5" />
-                    Preview
+                <Button
+                    onClick={onPreview}
+                    className="ml-1 h-12 rounded-xl bg-[#FFF38A] px-6 font-bold text-black hover:cursor-pointer hover:bg-[#ffe945]"
+                >
+                    {isPreviewing ? (
+                        <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Wait...
+                        </>
+                    ) : (
+                        <>
+                            <Monitor className="h-4 w-4" />
+                            Preview
+                        </>
+                    )}
                 </Button>
 
                 {/* Download Button */}
-                <Button className="ml-1 h-12 rounded-xl bg-[#FFF38A] px-6 font-bold text-black hover:bg-[#ffe945]">
-                    <Download className="mr-2 h-5 w-5" />
-                    Download
+                <Button
+                    onClick={onDownload}
+                    disabled={isLoading}
+                    className="ml-1 h-12 rounded-xl bg-[#FFF38A] px-6 font-bold text-black hover:cursor-pointer hover:bg-[#ffe945]"
+                >
+                    {isLoading ? (
+                        <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Generating...
+                        </>
+                    ) : (
+                        <>
+                            <FileDown className="h-4 w-4" />
+                            Download
+                        </>
+                    )}
                 </Button>
             </div>
         </div>

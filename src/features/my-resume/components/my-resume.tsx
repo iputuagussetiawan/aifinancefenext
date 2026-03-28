@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { FileDown } from 'lucide-react' // Added an icon for better UI
 import generatePDF, { Margin, Resolution, type Options } from 'react-to-pdf'
 
@@ -13,9 +13,51 @@ import ResumeWrapper from './v1/resume-wrapper'
 
 const MyResume = () => {
     const targetRef = useRef<HTMLDivElement>(null)
+    const [isDownloading, setIsDownloading] = useState(false)
+    const [isPreviewing, setIsPreviewing] = useState(false)
 
     // 1. Separate Function to handle download with a small delay for stability
     const handleDownload = () => {
+        if (isDownloading) return
+        setIsDownloading(true)
+        const options: Options = {
+            filename: 'my-resume.pdf',
+            method: 'save',
+            resolution: Resolution.HIGH,
+            page: {
+                margin: Margin.NONE,
+                format: 'A4',
+                orientation: 'portrait',
+            },
+            canvas: {
+                mimeType: 'image/png',
+                qualityRatio: 1,
+            },
+            overrides: {
+                pdf: {
+                    compress: false,
+                },
+                canvas: {
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                },
+            },
+        }
+
+        // Delay execution slightly to ensure DOM is fully ready
+        setTimeout(() => {
+            if (targetRef.current) {
+                generatePDF(targetRef, options)
+            }
+            setTimeout(() => {
+                setIsDownloading(false)
+            }, 1500)
+        }, 250)
+    }
+
+    const handlePreview = () => {
+        if (isPreviewing) return
+        setIsPreviewing(true)
         const options: Options = {
             filename: 'my-resume.pdf',
             method: 'open',
@@ -45,18 +87,17 @@ const MyResume = () => {
             if (targetRef.current) {
                 generatePDF(targetRef, options)
             }
+            setTimeout(() => {
+                setIsPreviewing(false)
+            }, 1500)
         }, 250)
     }
 
     return (
         <div className="flex min-h-screen flex-col items-center p-8">
-            {/* 3. Use the shadcn Button component */}
-            <Button onClick={handleDownload} className="sticky top-4 z-50 mb-8 shadow-lg">
-                <FileDown className="h-4 w-4" />
-                Download Resume PDF
-            </Button>
             <div
                 ref={targetRef}
+                className="mb-4"
                 style={{
                     backgroundColor: '#ffffff',
                     color: '#000000',
@@ -70,7 +111,12 @@ const MyResume = () => {
                     <ResumeExpOne />
                 </ResumeWrapper>
             </div>
-            <MyResumeToolbar />
+            <MyResumeToolbar
+                onPreview={handlePreview}
+                onDownload={handleDownload}
+                isPreviewing={isPreviewing}
+                isLoading={isDownloading}
+            />
         </div>
     )
 }
