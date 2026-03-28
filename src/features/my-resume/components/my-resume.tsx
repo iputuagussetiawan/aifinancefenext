@@ -1,17 +1,26 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { FileDown } from 'lucide-react' // Added an icon for better UI
 import generatePDF, { Margin, Resolution, type Options } from 'react-to-pdf'
 
-import { Button } from '@/components/ui/button'
+import type { ResumeMode } from '@/lib/constants'
 
 import MyResumeToolbar from './my-resume-toolbar'
 import ResumeAbout from './v1/resume-about'
 import ResumeExpOne from './v1/resume-exp-one'
 import ResumeWrapper from './v1/resume-wrapper'
 
-const MyResume = () => {
+interface ResumeData {
+    about: any
+    experiences: any[]
+}
+
+interface MyResumeProps {
+    mode?: ResumeMode
+    onChange?: (newData: ResumeData) => void
+}
+
+const MyResume = ({ mode = 'manage', onChange }: MyResumeProps) => {
     const targetRef = useRef<HTMLDivElement>(null)
     const [isDownloading, setIsDownloading] = useState(false)
     const [isPreviewing, setIsPreviewing] = useState(false)
@@ -111,7 +120,9 @@ const MyResume = () => {
                     <ResumeExpOne />
                 </ResumeWrapper>
             </div>
+
             <MyResumeToolbar
+                currentMode={mode}
                 onPreview={handlePreview}
                 onDownload={handleDownload}
                 isPreviewing={isPreviewing}
