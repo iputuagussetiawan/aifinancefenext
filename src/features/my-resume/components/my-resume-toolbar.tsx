@@ -18,15 +18,6 @@ import {
 
 import { Button } from '@/components/ui/button'
 import {
-    Drawer,
-    DrawerClose,
-    DrawerContent,
-    DrawerDescription,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerTitle,
-} from '@/components/ui/drawer'
-import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
@@ -38,6 +29,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { RESUME_MODE, type ResumeMode } from '@/lib/constants'
+
+import { ResumeDrawer } from './drawer/resume-drawer'
 
 type MyResumeToolbarProps = {
     onPreview: () => void
@@ -59,12 +52,8 @@ export default function MyResumeToolbar({
     currentMode,
 }: MyResumeToolbarProps) {
     const isManageMode = currentMode === RESUME_MODE.MANAGE
-    const [isOpenRightDrawer, setIsOpenRightDrawer] = useState(false)
+    const [isOpenPersonalDrawer, setIsOpenPersonalDrawer] = useState(false)
 
-    const handleOpenDrawer = () => {
-        // You can add logic here before opening (e.g., fetching data)
-        setIsOpenRightDrawer(true)
-    }
     return (
         <>
             <div className="sticky bottom-4 z-60 mb-8 flex w-fit items-center gap-1 rounded-2xl bg-[#222222] p-2 text-white shadow-2xl">
@@ -126,7 +115,12 @@ export default function MyResumeToolbar({
                                         <DropdownMenuLabel className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
                                             General
                                         </DropdownMenuLabel>
-                                        <DropdownMenuItem className="hover:cursor-pointer">
+                                        <DropdownMenuItem
+                                            onSelect={() => {
+                                                setIsOpenPersonalDrawer(true)
+                                            }}
+                                            className="hover:cursor-pointer"
+                                        >
                                             <User className="mr-2 h-4 w-4" />
                                             <span>Personal Info</span>
                                             <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
@@ -174,7 +168,7 @@ export default function MyResumeToolbar({
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
-                            <Button
+                            {/* <Button
                                 onClick={onSave}
                                 disabled={isSaving}
                                 className="h-12 rounded-xl bg-blue-500 px-8 font-bold text-white transition-all hover:cursor-pointer hover:bg-blue-600"
@@ -190,7 +184,7 @@ export default function MyResumeToolbar({
                                         Save Changes
                                     </>
                                 )}
-                            </Button>
+                            </Button> */}
                         </div>
                     ) : (
                         /* PREVIEW & DOWNLOAD (Shown only in Preview Mode) */
@@ -228,20 +222,14 @@ export default function MyResumeToolbar({
                     )}
                 </div>
             </div>
-            <Drawer direction="right" open={isOpenRightDrawer} onOpenChange={setIsOpenRightDrawer}>
-                <DrawerContent>
-                    <DrawerHeader>
-                        <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                        <DrawerDescription>This action cannot be undone.</DrawerDescription>
-                    </DrawerHeader>
-                    <DrawerFooter>
-                        <Button>Submit</Button>
-                        <DrawerClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                        </DrawerClose>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
+            <ResumeDrawer
+                direction="right"
+                title="Personal Info"
+                open={isOpenPersonalDrawer}
+                onOpenChange={setIsOpenPersonalDrawer}
+            >
+                <h3>Experiences Form Here</h3>
+            </ResumeDrawer>
         </>
     )
 }
