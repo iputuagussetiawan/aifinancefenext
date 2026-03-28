@@ -1,16 +1,12 @@
 import { useState } from 'react'
 import {
     Briefcase,
-    Download,
-    ExternalLink,
     FileDown,
     GraduationCap,
     Info,
     Languages,
     Loader2,
     Monitor,
-    PlusCircle,
-    Save,
     Settings,
     User,
     Wrench,
@@ -31,6 +27,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { RESUME_MODE, type ResumeMode } from '@/lib/constants'
 
 import { ResumeDrawer } from './drawer/resume-drawer'
+import PersonalInfoForm from './forms/personal-info-form'
 
 type MyResumeToolbarProps = {
     onPreview: () => void
@@ -228,7 +225,7 @@ export default function MyResumeToolbar({
                 open={isOpenPersonalDrawer}
                 onOpenChange={setIsOpenPersonalDrawer}
             >
-                <h3>Experiences Form Here</h3>
+                <PersonalInfoForm />
             </ResumeDrawer>
         </>
     )

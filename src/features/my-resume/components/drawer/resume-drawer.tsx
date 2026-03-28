@@ -42,7 +42,7 @@ export function ResumeDrawer({
     const isVertical = direction === 'right' || direction === 'left'
 
     const directionStyles = {
-        right: 'fixed right-0 top-0 bottom-0 mt-0 h-screen w-full sm:min-w-[30vw] rounded-none border-l',
+        right: 'fixed right-0 top-0 bottom-0 mt-0 h-screen w-full sm:min-w-[25vw] rounded-none border-l',
         left: 'fixed left-0 top-0 bottom-0 mt-0 h-screen w-full sm:w-[450px] rounded-none border-r',
         bottom: 'fixed inset-x-0 bottom-0 mt-24 max-h-[96%] rounded-t-[10px] border-t',
         top: 'fixed inset-x-0 top-0 mb-24 max-h-[96%] rounded-b-[10px] border-b',
@@ -53,7 +53,7 @@ export function ResumeDrawer({
             <DrawerContent className={`${directionStyles[direction]} outline-none ${className}`}>
                 {/* Handle bar for bottom/top drawers */}
                 {!isVertical && (
-                    <div className="bg-muted mx-auto mt-4 h-2 w-[100px] rounded-full" />
+                    <div className="bg-muted mx-auto mt-4 h-2 w-25 rounded-full border border-white/20 shadow-sm backdrop-blur-md" />
                 )}
 
                 <div className="flex h-full flex-col">
@@ -75,7 +75,7 @@ export function ResumeDrawer({
 
                     <div className="flex-1 overflow-y-auto px-6 py-2">{children}</div>
 
-                    <DrawerFooter className="border-t px-6 py-4">
+                    {/* <DrawerFooter className="border-t px-6 py-4">
                         {footer || (
                             <div className="flex w-full gap-3">
                                 <Button className="flex-1">Confirm</Button>
@@ -86,7 +86,7 @@ export function ResumeDrawer({
                                 </DrawerClose>
                             </div>
                         )}
-                    </DrawerFooter>
+                    </DrawerFooter> */}
                 </div>
             </DrawerContent>
         </Drawer>
