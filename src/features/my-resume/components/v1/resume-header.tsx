@@ -1,9 +1,11 @@
-import React from 'react'
 import { useAuthContext } from '@/providers/auth-provider'
 import { Globe, Mail, MapPin, Phone } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton'
+
 const ResumeHeader = () => {
-    const { user } = useAuthContext()
+    const { isLoading, user } = useAuthContext()
+    const SKELETON_STYLE = 'bg-gray-200/50'
     return (
         <section className="relative">
             <div className="absolute top-0 right-0 left-0 h-7 w-full bg-[#2E2C2F]"></div>
@@ -11,11 +13,26 @@ const ResumeHeader = () => {
                 {/* Name Area */}
                 <div className="flex flex-1 flex-col justify-end bg-white p-12 pb-0">
                     <h1 className="text-5xl leading-tight font-black tracking-widest text-[#1a1a1a] uppercase">
-                        <span className="block">{user?.firstName}</span>
-                        <span className="block">{user?.lastName}</span>
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                <Skeleton className={`h-12 w-3/4 ${SKELETON_STYLE}`} />
+                                <Skeleton className={`h-12 w-1/2 ${SKELETON_STYLE}`} />
+                            </div>
+                        ) : (
+                            <>
+                                <span className="block">{user?.firstName}</span>
+                                <span className="block">{user?.lastName}</span>
+                            </>
+                        )}
                     </h1>
                     <p className="mt-3 text-sm font-semibold tracking-[0.3em] text-[#4a4a4a] uppercase">
-                        {user?.jobTitle}
+                        {isLoading ? (
+                            <Skeleton className={`h-5 w-40 ${SKELETON_STYLE}`} />
+                        ) : (
+                            <p className="text-sm font-semibold tracking-[0.3em] text-[#4a4a4a] uppercase">
+                                {user?.jobTitle}
+                            </p>
+                        )}
                     </p>
                 </div>
 
@@ -26,13 +43,17 @@ const ResumeHeader = () => {
 
                     <div className="relative z-10 space-y-3">
                         {[
-                            { text: user?.address, Icon: MapPin },
-                            { text: user?.phoneNumber, Icon: Phone },
-                            { text: user?.email, Icon: Mail },
-                            { text: user?.website, Icon: Globe },
+                            { text: user?.address, Icon: MapPin, width: 'w-32' },
+                            { text: user?.phoneNumber, Icon: Phone, width: 'w-24' },
+                            { text: user?.email, Icon: Mail, width: 'w-40' },
+                            { text: user?.website, Icon: Globe, width: 'w-36' },
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-center justify-end gap-3">
-                                <span className="text-[12px] text-[#1a1a1a]">{item.text}</span>
+                                {isLoading ? (
+                                    <Skeleton className={`h-4 ${item.width} ${SKELETON_STYLE}`} />
+                                ) : (
+                                    <span className="text-[12px] text-[#1a1a1a]">{item.text}</span>
+                                )}
                                 <div className="relative top-1 p-1">
                                     <item.Icon size={14} className="text-[#1a1a1a]" />
                                 </div>
