@@ -7,7 +7,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Globe, Loader2, Mail, MapPin, Phone, Save } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import * as z from 'zod'
 
 import { userService } from '@/features/user/services/user-service'
 import {
