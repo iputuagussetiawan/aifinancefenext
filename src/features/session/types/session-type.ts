@@ -21,14 +21,31 @@ export interface IRole {
 export interface IUser {
     _id: string
     name: string
+
+    // Profile Header Data (Matches your images)
+    firstName: string
+    lastName: string
+    fullName: string // From Mongoose virtual
+    jobTitle: string
+
+    // Contact & Social
     email: string
-    profilePicture: string
+    phoneNumber: string
+    address: string
+    website: string
+    profilePicture: string | null
+    bio: string
+
+    // Account Status
     isEmailVerified: boolean
     isActive: boolean
-    lastLogin: string // or Date if you parse it
-    createdAt: string // or Date
-    updatedAt: string // or Date
     onboardingComplete: boolean
+
+    // Metadata & Timestamps
+    lastLogin: string | Date // ISO string from API
+    createdAt: string | Date
+    updatedAt: string | Date
+
     role: IRole
 }
 

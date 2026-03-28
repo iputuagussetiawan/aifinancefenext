@@ -7,6 +7,48 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024
 // Allowed file types
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 
+export const userProfileValidation = z.object({
+    firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long').trim(),
+    lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long').trim(),
+
+    // --- Professional Details ---
+    jobTitle: z.string().max(100, 'Job title is too long').trim().optional().or(z.literal('')),
+    phoneNumber: z.string().max(20, 'Phone number is too long').trim().optional().or(z.literal('')),
+
+    address: z.string().max(200, 'Address is too long').trim().optional().or(z.literal('')),
+    website: z
+        .string()
+        // We use .url() but allow empty strings for optional fields
+        .url('Invalid website URL')
+        .optional()
+        .or(z.literal('')),
+    email: z.string().email('Invalid email address').trim().toLowerCase(),
+})
+
+export const updateUserProfileValidation = userProfileValidation.partial()
+export type UpdateUserProfileDTO = z.infer<typeof updateUserProfileValidation>
+
+export interface IUser {
+    _id: string
+    name: string
+    email: string
+    profilePicture: string | null
+    isEmailVerified: boolean
+    isActive: boolean
+    lastLogin: string | null
+    onboardingComplete: boolean
+    createdAt: string
+    updatedAt: string
+    __v: number
+}
+
+export interface IUserResponse {
+    message: string
+    user: IUser
+    role: IRole
+    joinedAt: string
+}
+
 export const personalInfoValidation = z.object({
     // --- Name & Identity ---
     firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -78,24 +120,3 @@ export const updateProfileValidation = profileValidation.partial()
 export type PersonalInfoInput = z.infer<typeof personalInfoValidation>
 export type profileDTO = z.infer<typeof profileValidation>
 export type UpdateProfileDTO = z.infer<typeof updateProfileValidation>
-
-export interface IUser {
-    _id: string
-    name: string
-    email: string
-    profilePicture: string | null
-    isEmailVerified: boolean
-    isActive: boolean
-    lastLogin: string | null
-    onboardingComplete: boolean
-    createdAt: string
-    updatedAt: string
-    __v: number
-}
-
-export interface IUserResponse {
-    message: string
-    user: IUser
-    role: IRole
-    joinedAt: string
-}

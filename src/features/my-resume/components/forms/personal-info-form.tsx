@@ -1,47 +1,71 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Globe, Loader2, Mail, MapPin, Phone, Save } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import * as z from 'zod'
 
+import { userService } from '@/features/user/services/user-service'
+import {
+    updateUserProfileValidation,
+    type UpdateUserProfileDTO,
+} from '@/features/user/types/user-type'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { UiFormInput } from '@/components/ui/UiFormInput'
 
-// 1. Validation Schema
-const profileSchema = z.object({
-    firstName: z.string().min(1, 'Required'),
-    lastName: z.string().min(1, 'Required'),
-    jobTitle: z.string().min(1, 'Required'),
-    address: z.string().min(1, 'Required'),
-    phone: z.string().min(1, 'Required'),
-    email: z.string().email('Invalid email'),
-    website: z.string().min(1, 'Required'),
-})
-
-type ProfileValues = z.infer<typeof profileSchema>
-
 export default function PersonalInfoForm() {
+    const { user } = useAuthContext()
+    const queryClient = useQueryClient()
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<ProfileValues>({
-        resolver: zodResolver(profileSchema),
+        reset,
+        formState: { errors },
+    } = useForm<UpdateUserProfileDTO>({
+        resolver: zodResolver(updateUserProfileValidation),
         defaultValues: {
-            firstName: 'BROCK',
-            lastName: 'HENRECKS',
-            jobTitle: 'GRAPHIC DESIGNER',
-            address: 'Address Name, Australia',
-            phone: '+457 123 4567 8912',
-            email: 'namehere@gmail.com',
-            website: 'www.domainname.com',
+            firstName: user?.firstName ?? '',
+            lastName: user?.lastName ?? '',
+            jobTitle: user?.jobTitle ?? '',
+            address: user?.address ?? '',
+            phoneNumber: user?.phoneNumber ?? '',
+            email: user?.email ?? '',
+            website: user?.website ?? '',
         },
     })
 
-    const onSubmit = (data: ProfileValues) => {
-        console.log('Saving Data:', data)
+    useEffect(() => {
+        if (user) {
+            reset({
+                firstName: user.firstName,
+                lastName: user.lastName,
+                jobTitle: user.jobTitle,
+                address: user.address,
+                phoneNumber: user.phoneNumber,
+                email: user.email,
+                website: user.website,
+            })
+        }
+    }, [user, reset])
+
+    const { mutate, isPending } = useMutation({
+        mutationFn: (data: UpdateUserProfileDTO) => userService.updateProfile(data),
+        onSuccess: () => {
+            toast.success('Profile updated successfully')
+            queryClient.invalidateQueries({ queryKey: ['authUser'] })
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Failed to update profile')
+        },
+    })
+
+    const onSubmit = (data: UpdateUserProfileDTO) => {
+        mutate(data)
     }
 
     return (
@@ -57,7 +81,7 @@ export default function PersonalInfoForm() {
                             placeholder="FIRST NAME"
                             className="border-none py-6 text-5xl font-black tracking-widest uppercase focus-visible:ring-0"
                             error={errors.firstName}
-                            isSubmitting={isSubmitting}
+                            isSubmitting={isPending}
                             {...register('firstName')}
                         />
                         <UiFormInput
@@ -66,7 +90,7 @@ export default function PersonalInfoForm() {
                             placeholder="LAST NAME"
                             className="border-none py-6 text-5xl font-black tracking-widest uppercase focus-visible:ring-0"
                             error={errors.lastName}
-                            isSubmitting={isSubmitting}
+                            isSubmitting={isPending}
                             {...register('lastName')}
                         />
                         <div className="pt-4">
@@ -76,7 +100,7 @@ export default function PersonalInfoForm() {
                                 placeholder="JOB TITLE"
                                 className="border-none py-6 text-lg font-medium tracking-[0.3em] text-gray-600 uppercase focus-visible:ring-0"
                                 error={errors.jobTitle}
-                                isSubmitting={isSubmitting}
+                                isSubmitting={isPending}
                                 {...register('jobTitle')}
                             />
                         </div>
@@ -99,16 +123,16 @@ export default function PersonalInfoForm() {
                                 placeholder="Address"
                                 className="h-9 border-none py-6 text-right text-sm focus-visible:ring-0"
                                 error={errors.address}
-                                isSubmitting={isSubmitting}
+                                isSubmitting={isPending}
                                 {...register('address')}
                             />
                             <UiFormInput
-                                id="phone"
+                                id="phoneNumber"
                                 placeholder="Phone"
                                 className="h-9 border-none py-6 text-right text-sm focus-visible:ring-0"
-                                error={errors.phone}
-                                isSubmitting={isSubmitting}
-                                {...register('phone')}
+                                error={errors.phoneNumber}
+                                isSubmitting={isPending}
+                                {...register('phoneNumber')}
                             />
                             <UiFormInput
                                 id="email"
@@ -116,7 +140,7 @@ export default function PersonalInfoForm() {
                                 placeholder="Email"
                                 className="h-9 border-none py-6 text-right text-sm focus-visible:ring-0"
                                 error={errors.email}
-                                isSubmitting={isSubmitting}
+                                isSubmitting={isPending}
                                 {...register('email')}
                             />
                             <UiFormInput
@@ -124,7 +148,7 @@ export default function PersonalInfoForm() {
                                 placeholder="Website"
                                 className="h-9 border-none py-6 text-right text-sm focus-visible:ring-0"
                                 error={errors.website}
-                                isSubmitting={isSubmitting}
+                                isSubmitting={isPending}
                                 {...register('website')}
                             />
                         </div>
@@ -133,13 +157,13 @@ export default function PersonalInfoForm() {
                 <div className="mt-10 flex items-center justify-between">
                     <Button
                         type="submit"
-                        disabled={isSubmitting}
-                        className="rounded-xl bg-black px-6 py-6 text-white hover:cursor-pointer"
+                        disabled={isPending}
+                        className="rounded-lg px-6 py-5 hover:cursor-pointer"
                     >
-                        {isSubmitting ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                            <Save className="mr-2 h-4 w-4" />
+                            <Save className="h-4 w-4" />
                         )}
                         Save Changes
                     </Button>
