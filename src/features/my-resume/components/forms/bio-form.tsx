@@ -23,6 +23,7 @@ export default function BioForm() {
     const {
         handleSubmit,
         reset,
+        setError,
         control, // Needed for the Controller
         formState: { errors },
     } = useForm<UpdateUserProfileDTO>({
@@ -45,7 +46,18 @@ export default function BioForm() {
             queryClient.invalidateQueries({ queryKey: ['authUser'] })
         },
         onError: (error: any) => {
-            toast.error(error.response?.data?.message || 'Failed to update bio')
+            const serverMessage = error.response?.data?.message || 'Failed to update bio'
+
+            // 2. This pushes the server error into the form state
+            // It will trigger the red border and the error text below the editor
+            setError('bio', {
+                type: 'server',
+                message: serverMessage,
+            })
+
+            alert(error)
+
+            toast.error(error.response?.data?.message)
         },
     })
 
@@ -78,6 +90,7 @@ export default function BioForm() {
                                 <RichTextEditor
                                     initialContent={field.value}
                                     onChange={field.onChange}
+                                    error={!!errors.bio}
                                 />
                             )}
                         />
