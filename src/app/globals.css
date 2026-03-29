@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@plugin '@tailwindcss/typography';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -129,5 +130,101 @@
     }
     html {
         @apply font-sans;
+    }
+}
+
+@layer components {
+    /* This targets the actual content area of the Tiptap editor */
+    .tiptap.prose {
+        /* 1. Spacing: Tighten up paragraphs and lists */
+        p {
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
+        ul,
+        ol {
+            margin-top: 4px !important;
+            margin-bottom: 4px !important;
+            padding-left: 1.25rem;
+        }
+        li {
+            margin-top: 0px !important;
+            margin-bottom: 2px !important; /* Minimal gap between bullet points */
+        }
+        li p {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            display: inline; /* Keeps text snug against the bullet */
+        }
+
+        /* 2. Colors: Ensure visibility in Dark Mode */
+        color: #f4f4f5; /* Zinc-100 (almost white) */
+    }
+
+    /* Specifically target the bullets in the editor */
+    .tiptap.prose ul li::marker {
+        color: #a1a1aa; /* Zinc-400 */
+    }
+
+    /* When the app is in DARK mode, ensure the prose plugin doesn't 
+     force dark gray text on us */
+    .dark .tiptap.prose {
+        --tw-prose-body: #f4f4f5;
+        --tw-prose-headings: #ffffff;
+        --tw-prose-bullets: #a1a1aa;
+    }
+}
+
+@layer components {
+    .tiptap-content ul {
+        list-style-type: disc;
+        /* This controls the distance from the left container edge to the bullet */
+        padding-left: 1rem;
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+
+    /* This styles the actual "dot" to match your image */
+    .tiptap-content ul li::marker {
+        font-size: 0.75rem; /* Makes the bullet slightly smaller than text */
+    }
+
+    .tiptap-content li {
+        /* This controls the gap between the bullet and the text */
+        line-height: 1; /* Adjust line height for better spacing */
+        color: #4b5563; /* Your bio text color */
+    }
+
+    /* Essential fix for Tiptap: prevent the <p> inside <li> from creating a new line */
+    .tiptap-content li p {
+        display: inline;
+    }
+}
+
+@layer components {
+    .tiptap-resume ul {
+        list-style-type: disc;
+        /* This controls the distance from the left container edge to the bullet */
+        padding-left: 1rem;
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+
+    /* This styles the actual "dot" to match your image */
+    .tiptap-resume ul li::marker {
+        color: #9ca3af; /* Light gray bullet */
+        font-size: 0.75rem; /* Makes the bullet slightly smaller than text */
+    }
+
+    .tiptap-resume li {
+        /* This controls the gap between the bullet and the text */
+        line-height: 1; /* Adjust line height for better spacing */
+        color: #4b5563; /* Your bio text color */
+    }
+
+    /* Essential fix for Tiptap: prevent the <p> inside <li> from creating a new line */
+    .tiptap-resume li p {
+        display: inline;
     }
 }

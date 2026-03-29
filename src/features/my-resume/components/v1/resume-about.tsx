@@ -57,6 +57,7 @@ const ResumeAbout = () => {
 
                 {/* Quote Content */}
                 <div className="flex gap-2">
+                    {/* Quote Icon */}
                     <span
                         className="font-serif text-3xl leading-none"
                         style={{ color: '#1a1a1a', marginTop: '-4px' }}
@@ -64,12 +65,12 @@ const ResumeAbout = () => {
                         “
                     </span>
 
-                    <p
-                        className="text-justify text-[10px] leading-relaxed"
+                    {/* Bio Content */}
+                    <div
+                        className="tiptap-resume prose prose-sm prose-p:my-0 prose-li:pl-0 max-w-none text-justify text-[10px] leading-relaxed"
                         style={{ color: '#4b5563' }}
-                    >
-                        {user?.bio || 'No bio provided.'}
-                    </p>
+                        dangerouslySetInnerHTML={{ __html: user?.bio || 'No bio provided.' }}
+                    />
                 </div>
             </div>
         </section>
@@ -93,7 +94,7 @@ const ResumeAboutSkeleton = () => {
                     style={{ backgroundColor: '#f3f4f6' }}
                 />
 
-                <div className="relative z-10 mt-6 ml-[55px]">
+                <div className="relative z-10 mt-6 ml-13.75">
                     <Skeleton
                         className={`h-32 w-32 rounded-full border-2 border-white shadow-sm ${SKELETON_STYLE}`}
                     />
@@ -105,7 +106,7 @@ const ResumeAboutSkeleton = () => {
                 {/* Title Section */}
                 <div className="mb-4 flex items-center gap-4">
                     <Skeleton className={`h-4 w-24 ${SKELETON_STYLE}`} />
-                    <div className="h-[1px] flex-1 bg-gray-200" />
+                    <div className="h-px flex-1 bg-gray-200" />
                 </div>
 
                 {/* Content Section */}

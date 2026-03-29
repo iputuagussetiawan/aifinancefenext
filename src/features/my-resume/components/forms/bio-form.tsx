@@ -5,7 +5,7 @@ import { useAuthContext } from '@/providers/auth-provider'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Save } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form' // Added Controller
 import { toast } from 'sonner'
 
 import { userService } from '@/features/user/services/user-service'
@@ -13,33 +13,28 @@ import {
     updateUserProfileValidation,
     type UpdateUserProfileDTO,
 } from '@/features/user/types/user-type'
+import { RichTextEditor } from '@/components/editor' // Using your new editor
 import { Button } from '@/components/ui/button'
-import { UiFormInput } from '@/components/ui/UiFormInput'
-import { UiFormTextarea } from '@/components/ui/UiFormTextarea'
 
 export default function BioForm() {
     const { user } = useAuthContext()
     const queryClient = useQueryClient()
 
     const {
-        register,
         handleSubmit,
         reset,
+        control, // Needed for the Controller
         formState: { errors },
     } = useForm<UpdateUserProfileDTO>({
         resolver: zodResolver(updateUserProfileValidation),
         defaultValues: {
-            // Using a fallback to prevent "uncontrolled to controlled" input errors
             bio: user?.bio || '',
         },
     })
 
-    // Sync form when user data is fetched/changed
     useEffect(() => {
         if (user) {
-            reset({
-                bio: user.bio || '',
-            })
+            reset({ bio: user.bio || '' })
         }
     }, [user, reset])
 
@@ -47,7 +42,6 @@ export default function BioForm() {
         mutationFn: (data: UpdateUserProfileDTO) => userService.updateProfile(data),
         onSuccess: () => {
             toast.success('Bio updated successfully')
-            // This refreshes the user context globally
             queryClient.invalidateQueries({ queryKey: ['authUser'] })
         },
         onError: (error: any) => {
@@ -59,7 +53,6 @@ export default function BioForm() {
         mutate(data)
     }
 
-    // Optional: Show a skeleton or nothing if user is still loading
     if (!user) {
         return (
             <div className="flex justify-center p-10">
@@ -71,21 +64,33 @@ export default function BioForm() {
     return (
         <div>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="grid grid-cols-12 items-start justify-end gap-8">
+                <div className="mt-4 grid grid-cols-12 gap-8">
                     <div className="col-span-12 space-y-2">
-                        <UiFormTextarea
-                            id="bio"
-                            label="Bio"
-                            placeholder="Write a short bio about yourself..."
-                            className="text-lg font-medium tracking-tight" // Adjusted for bio style
-                            error={errors.bio}
-                            isSubmitting={isPending}
-                            {...register('bio')}
+                        <label className="text-muted-foreground mb-2 block text-sm font-semibold tracking-wider uppercase">
+                            Professional Bio
+                        </label>
+
+                        {/* 🗝️ Use Controller to bridge Tiptap and React Hook Form */}
+                        <Controller
+                            name="bio"
+                            control={control}
+                            render={({ field }) => (
+                                <RichTextEditor
+                                    initialContent={field.value}
+                                    onChange={field.onChange}
+                                />
+                            )}
                         />
+
+                        {errors.bio && (
+                            <p className="text-destructive text-xs font-medium">
+                                {errors.bio.message}
+                            </p>
+                        )}
                     </div>
                 </div>
 
-                <div className="mt-10 flex items-center justify-between">
+                <div className="mt-8 flex items-center justify-between">
                     <Button
                         type="submit"
                         disabled={isPending}
