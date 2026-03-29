@@ -54,9 +54,6 @@ export default function BioForm() {
                 type: 'server',
                 message: serverMessage,
             })
-
-            alert(error)
-
             toast.error(error.response?.data?.message)
         },
     })
