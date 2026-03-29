@@ -14,7 +14,7 @@ export const userProfileValidation = z.object({
     // --- Professional Details ---
     jobTitle: z.string().max(100, 'Job title is too long').trim().optional().or(z.literal('')),
     phoneNumber: z.string().max(20, 'Phone number is too long').trim().optional().or(z.literal('')),
-
+    bio: z.string().max(1000, 'Bio is too long').trim().optional().or(z.literal('')),
     address: z.string().max(200, 'Address is too long').trim().optional().or(z.literal('')),
     website: z
         .string()

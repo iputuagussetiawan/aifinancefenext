@@ -27,7 +27,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { RESUME_MODE, type ResumeMode } from '@/lib/constants'
 
 import { ResumeDrawer } from './drawer/resume-drawer'
+import BioForm from './forms/bio-form'
 import PersonalInfoForm from './forms/personal-info-form'
+import PhotoProfileForm from './forms/photo-profile-form'
 
 type MyResumeToolbarProps = {
     onPreview: () => void
@@ -50,6 +52,7 @@ export default function MyResumeToolbar({
 }: MyResumeToolbarProps) {
     const isManageMode = currentMode === RESUME_MODE.MANAGE
     const [isOpenPersonalDrawer, setIsOpenPersonalDrawer] = useState(false)
+    const [isOpenAboutDrawer, SetIsOpenAboutDrawer] = useState(false)
 
     return (
         <>
@@ -122,7 +125,12 @@ export default function MyResumeToolbar({
                                             <span>Personal Info</span>
                                             <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="hover:cursor-pointer">
+                                        <DropdownMenuItem
+                                            onSelect={() => {
+                                                SetIsOpenAboutDrawer(true)
+                                            }}
+                                            className="hover:cursor-pointer"
+                                        >
                                             <Info className="mr-2 h-4 w-4" />
                                             <span>About Me</span>
                                         </DropdownMenuItem>
@@ -226,6 +234,17 @@ export default function MyResumeToolbar({
                 onOpenChange={setIsOpenPersonalDrawer}
             >
                 <PersonalInfoForm />
+            </ResumeDrawer>
+            <ResumeDrawer
+                direction="right"
+                title="About me"
+                open={isOpenAboutDrawer}
+                onOpenChange={SetIsOpenAboutDrawer}
+            >
+                <div className="grid gap-4">
+                    <PhotoProfileForm />
+                    <BioForm />
+                </div>
             </ResumeDrawer>
         </>
     )

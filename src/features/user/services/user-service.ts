@@ -25,4 +25,11 @@ export const userService = {
             // We usually don't cache registration attempts
             cache: 'no-store',
         }),
+    updatePhotoProfile: (formData: FormData) =>
+        api.API<IUserResponse>('/api/user/update-photo', {
+            method: 'PUT',
+            body: formData,
+            // We usually don't cache registration attempts
+            cache: 'no-store',
+        }),
 }
