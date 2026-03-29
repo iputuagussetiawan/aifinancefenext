@@ -1,6 +1,14 @@
 import React from 'react'
+import { useAuthContext } from '@/providers/auth-provider'
+
+import { Skeleton } from '@/components/ui/skeleton' // Assuming shadcn/ui skeleton
+import { SKELETON_STYLE } from '@/lib/constants'
 
 const ResumeAbout = () => {
+    const { isLoading, user } = useAuthContext()
+
+    if (isLoading) return <ResumeAboutSkeleton />
+
     return (
         <section
             className="relative mt-10 flex w-full gap-8 px-12"
@@ -8,36 +16,27 @@ const ResumeAbout = () => {
         >
             {/* 1. Profile Picture Column */}
             <div className="relative w-1/3" style={{ minHeight: '140px' }}>
-                {/* The Gray Background Box - Using Hex to avoid LAB/OKLCH errors */}
+                {/* Gray Background Accent */}
                 <div
-                    className="absolute top-0 left-0 z-0 h-30 w-full"
-                    style={{
-                        backgroundColor: '#e5e7eb',
-                    }}
-                ></div>
+                    className="absolute top-0 left-0 z-0 h-32 w-full"
+                    style={{ backgroundColor: '#e5e7eb' }}
+                />
 
                 {/* The Circular Image Container */}
-                <div className="relative z-10" style={{ marginTop: '24px', marginLeft: '55px' }}>
+                <div className="relative z-10 mt-6 ml-13.75">
                     <div
-                        className="overflow-hidden rounded-full"
+                        className="overflow-hidden rounded-full border-2 border-white"
                         style={{
                             width: '128px',
                             height: '128px',
-                            border: '2px solid #ffffff',
                             backgroundColor: '#d1d5db',
                         }}
                     >
-                        {/* Use <img> with crossOrigin to prevent PDF export crashes */}
                         <img
-                            src="/images/users/user-1.png"
-                            alt="Profile"
+                            src={user?.profilePicture || '/images/users/default-avatar.png'}
+                            alt={user?.name || 'Profile'}
                             crossOrigin="anonymous"
-                            className="object-cover"
-                            style={{
-                                width: '128px',
-                                height: '128px',
-                                objectFit: 'cover',
-                            }}
+                            className="h-full w-full object-cover"
                         />
                     </div>
                 </div>
@@ -48,24 +47,16 @@ const ResumeAbout = () => {
                 {/* Title with underline */}
                 <div className="mb-4 flex items-center gap-4">
                     <h2
-                        className="text-sm font-bold whitespace-nowrap uppercase"
+                        className="text-sm font-bold tracking-wider whitespace-nowrap uppercase"
                         style={{ color: '#1a1a1a' }}
                     >
                         About Me
                     </h2>
-                    {/* Hardcoded Hex for the line */}
-                    <div
-                        style={{
-                            height: '1px',
-                            backgroundColor: '#d1d5db',
-                            width: '100%',
-                        }}
-                    ></div>
+                    <div className="h-px w-full" style={{ backgroundColor: '#d1d5db' }} />
                 </div>
 
                 {/* Quote Content */}
                 <div className="flex gap-2">
-                    {/* Quote Icon - Serif font for the visual style */}
                     <span
                         className="font-serif text-3xl leading-none"
                         style={{ color: '#1a1a1a', marginTop: '-4px' }}
@@ -77,13 +68,57 @@ const ResumeAbout = () => {
                         className="text-justify text-[10px] leading-relaxed"
                         style={{ color: '#4b5563' }}
                     >
-                        Lorem ipsum dolor sit amet, consecte adipiscing elit. Vivamus vulputate
-                        libero justo vivamus dolor vulputate of our libero justo. sit use elit
-                        consecteture. sit amet Lorem sit elits consecteture. Lorem ipsum dolor sit
-                        usr amet ipsum dolor sit adipiscing amet elit amet use elit. Vivamus
-                        vulputate dolor vulputate our libero justo. sits user elit consec tetur.
-                        sits amet Lorem ipsum lorem ipsum dolor sit amet.
+                        {user?.bio || 'No bio provided.'}
                     </p>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+/**
+ * Skeleton State - Matches the exact layout dimensions
+ */
+const ResumeAboutSkeleton = () => {
+    return (
+        <section
+            className="relative mt-10 flex w-full gap-8 px-12"
+            style={{ backgroundColor: '#ffffff' }}
+        >
+            {/* 1. Profile Picture Column Skeleton */}
+            <div className="relative w-1/3" style={{ minHeight: '140px' }}>
+                {/* Match the gray background accent exactly */}
+                <div
+                    className={`absolute top-0 left-0 h-32 w-full ${SKELETON_STYLE}`}
+                    style={{ backgroundColor: '#f3f4f6' }}
+                />
+
+                <div className="relative z-10 mt-6 ml-[55px]">
+                    <Skeleton
+                        className={`h-32 w-32 rounded-full border-2 border-white shadow-sm ${SKELETON_STYLE}`}
+                    />
+                </div>
+            </div>
+
+            {/* 2. Text Column Skeleton */}
+            <div className="flex-1 pt-4">
+                {/* Title Section */}
+                <div className="mb-4 flex items-center gap-4">
+                    <Skeleton className={`h-4 w-24 ${SKELETON_STYLE}`} />
+                    <div className="h-[1px] flex-1 bg-gray-200" />
+                </div>
+
+                {/* Content Section */}
+                <div className="flex gap-2">
+                    {/* The Quote Mark Skeleton */}
+                    <Skeleton className={`mt-1 h-4 w-4 rounded-sm ${SKELETON_STYLE}`} />
+
+                    <div className="flex-1 space-y-3">
+                        <Skeleton className={`h-3 w-full ${SKELETON_STYLE}`} />
+                        <Skeleton className={`h-3 w-full ${SKELETON_STYLE}`} />
+                        <Skeleton className={`h-3 w-full ${SKELETON_STYLE}`} />
+                        <Skeleton className={`h-3 w-[85%] ${SKELETON_STYLE}`} />
+                    </div>
                 </div>
             </div>
         </section>

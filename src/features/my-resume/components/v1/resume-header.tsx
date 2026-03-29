@@ -2,10 +2,10 @@ import { useAuthContext } from '@/providers/auth-provider'
 import { Globe, Mail, MapPin, Phone } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
+import { SKELETON_STYLE } from '@/lib/constants'
 
 const ResumeHeader = () => {
     const { isLoading, user } = useAuthContext()
-    const SKELETON_STYLE = 'bg-gray-200/50'
     return (
         <section className="relative">
             <div className="absolute top-0 right-0 left-0 h-7 w-full bg-[#2E2C2F]"></div>

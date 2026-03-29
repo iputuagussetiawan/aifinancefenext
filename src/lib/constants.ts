@@ -11,3 +11,5 @@ export const RESUME_MODE = {
 } as const
 
 export type ResumeMode = (typeof RESUME_MODE)[keyof typeof RESUME_MODE]
+
+export const SKELETON_STYLE = 'bg-gray-200/50'
