@@ -25,7 +25,7 @@ const ResumeHeader = () => {
                             </>
                         )}
                     </h1>
-                    <p className="mt-3 text-sm font-semibold tracking-[0.3em] text-[#4a4a4a] uppercase">
+                    <div className="mt-3 text-sm font-semibold tracking-[0.3em] text-[#4a4a4a] uppercase">
                         {isLoading ? (
                             <Skeleton className={`h-5 w-40 ${SKELETON_STYLE}`} />
                         ) : (
@@ -33,7 +33,7 @@ const ResumeHeader = () => {
                                 {user?.jobTitle}
                             </p>
                         )}
-                    </p>
+                    </div>
                 </div>
 
                 {/* Gray Contact Block */}
