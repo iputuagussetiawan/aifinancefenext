@@ -47,7 +47,7 @@ export const getSidebarData = (roleName?: string) => {
                           url: '#',
                           icon: FileUser,
                           items: [
-                              { title: 'View CV', url: '/cv/view' },
+                              { title: 'View CV', url: '/cv/preview' },
                               { title: 'Manage CV', url: '/cv/manage' },
                           ],
                       },

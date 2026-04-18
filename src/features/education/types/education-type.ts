@@ -61,7 +61,15 @@ export interface IEducation {
     updatedAt: string
 }
 
+// Response type for a single education entry, useful for both creation and retrieval
 export interface IEducationResponse {
     message: string
     education: IEducation
+}
+
+// For listing multiple education entries, we can define a response type that includes an array of IEducation
+export interface IEducationsResponse {
+    message: string
+    count: number
+    data: IEducation[]
 }

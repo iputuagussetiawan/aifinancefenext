@@ -18,6 +18,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { data, error, isLoading, isFetching, refetch } = useAuth()
     const user = data?.user
+
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-screen items-center justify-center">
+                {/* Your global loader or a blank screen */}
+                <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+            </div>
+        )
+    }
+
     return (
         <AuthContext.Provider value={{ user, error, isLoading, isFetching, refetch }}>
             {children}

@@ -1,4 +1,4 @@
-import React from 'react'
+import Educations from './educations'
 
 const ResumeExpOne = () => {
     return (
@@ -9,35 +9,7 @@ const ResumeExpOne = () => {
             {/* LEFT COLUMN: Education, Skills, Language */}
             <div className="w-1/3 pr-8">
                 {/* EDUCATION */}
-                <div className="mb-10">
-                    <h2
-                        className="mb-1 text-sm font-bold tracking-[0.2em] uppercase"
-                        style={{ color: '#1a1a1a' }}
-                    >
-                        Education
-                    </h2>
-                    <div
-                        className="mb-4 h-[1px] w-full"
-                        style={{ backgroundColor: '#d1d5db' }}
-                    ></div>
-
-                    {[1, 2, 3].map((_, i) => (
-                        <div key={i} className="mb-4">
-                            <h3
-                                className="text-[10px] font-bold uppercase"
-                                style={{ color: '#1a1a1a' }}
-                            >
-                                Your Major Degree
-                            </h3>
-                            <p className="text-[9px]" style={{ color: '#4b5563' }}>
-                                Name of University | Location
-                            </p>
-                            <p className="text-[8px] font-medium" style={{ color: '#9ca3af' }}>
-                                2008 - 2010
-                            </p>
-                        </div>
-                    ))}
-                </div>
+                <Educations />
 
                 {/* SKILLS */}
                 <div className="mb-10">

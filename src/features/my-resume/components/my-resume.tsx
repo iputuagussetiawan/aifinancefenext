@@ -6,9 +6,9 @@ import generatePDF, { Margin, Resolution, type Options } from 'react-to-pdf'
 import type { ResumeMode } from '@/lib/constants'
 
 import MyResumeToolbar from './my-resume-toolbar'
-import ResumeAbout from './v1/resume-about'
-import ResumeExpOne from './v1/resume-exp-one'
-import ResumeWrapper from './v1/resume-wrapper'
+import ResumeAbout from './template/v1/resume-about'
+import ResumeExpOne from './template/v1/resume-exp-one'
+import ResumeWrapper from './template/v1/resume-wrapper'
 
 interface ResumeData {
     about: any

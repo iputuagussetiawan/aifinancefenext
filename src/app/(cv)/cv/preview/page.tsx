@@ -1,11 +1,10 @@
-import React from 'react'
+import MyResume from '@/features/my-resume/components/my-resume'
 
-const PagePreviewCV = () => {
+const PreviewCVPage = () => {
     return (
         <div>
-            <h1>Page Preview CV</h1>
+            <MyResume mode="preview" />
         </div>
     )
 }
-
-export default PagePreviewCV
+export default PreviewCVPage

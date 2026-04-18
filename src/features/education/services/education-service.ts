@@ -1,6 +1,6 @@
 import { api } from '@/lib/api-factory'
 
-import type { EducationDTO, IEducationResponse } from '../types/education-type'
+import type { EducationDTO, IEducationResponse, IEducationsResponse } from '../types/education-type'
 
 export const educationService = {
     // 1. Add the Register function
@@ -10,5 +10,10 @@ export const educationService = {
             body: JSON.stringify(data),
             // We usually don't cache registration attempts
             cache: 'no-store',
+        }),
+    get: () =>
+        api.API<IEducationsResponse>('/api/education/get', {
+            method: 'GET',
+            cache: 'no-store', // Always get fresh data
         }),
 }
