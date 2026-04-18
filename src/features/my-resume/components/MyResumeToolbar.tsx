@@ -254,6 +254,7 @@ export default function MyResumeToolbar({
                 </div>
             </ResumeDrawer>
             <ResumeDrawer
+                className="sm:min-w-[1400px]"
                 direction="right"
                 title="Education"
                 open={isOpenEducationDrawer}

@@ -1,6 +1,8 @@
 'use client'
 
 import React from 'react'
+import { move } from '@dnd-kit/helpers'
+import { DragDropProvider } from '@dnd-kit/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { GraduationCap, Loader2, Plus, Save, Trash2 } from 'lucide-react'
@@ -15,8 +17,9 @@ import {
     type IEducation,
 } from '@/features/education/types/education-type'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { UiFormInput } from '@/components/ui/UiFormInput'
+
+import { SortableEducationCard } from '../SortableEducationCard'
 
 export default function EducationForm() {
     const queryClient = useQueryClient()
@@ -42,7 +45,12 @@ export default function EducationForm() {
     })
 
     // 3. Field Array for dynamic rows
-    const { fields, append, remove } = useFieldArray({
+    const {
+        fields,
+        append,
+        remove,
+        move: moveField,
+    } = useFieldArray({
         control,
         name: 'educations',
     })
@@ -118,23 +126,30 @@ export default function EducationForm() {
                 </Button>
             </div>
 
-            <div className="space-y-6">
-                {fields.map((field, index) => (
-                    <Card
-                        key={field.id}
-                        className="relative overflow-hidden border-l-4 border-l-[#eab308]"
-                    >
-                        <CardContent className="pt-6">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive hover:bg-destructive/10 absolute top-2 right-2"
-                                onClick={() => remove(index)}
-                            >
-                                <Trash2 size={18} />
-                            </Button>
+            <DragDropProvider
+                onDragEnd={(event) => {
+                    // 1. Get the new array order
+                    const updatedFields = move(fields, event)
 
+                    // 2. Find the old and new index to keep React Hook Form in sync
+                    const activeId = event.operation.source?.id
+                    const overId = event.operation.target?.id
+
+                    if (activeId && overId && activeId !== overId) {
+                        const from = fields.findIndex((f) => f.id === activeId)
+                        const to = fields.findIndex((f) => f.id === overId)
+                        moveField(from, to) // This syncs React Hook Form state
+                    }
+                }}
+            >
+                <div className="space-y-6">
+                    {fields.map((field, index) => (
+                        <SortableEducationCard
+                            key={field.id}
+                            id={field.id}
+                            index={index}
+                            onRemove={remove}
+                        >
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <UiFormInput
                                     label="School/University Name"
@@ -162,13 +177,13 @@ export default function EducationForm() {
                                 />
                                 <div className="grid grid-cols-2 gap-4">
                                     <UiFormInput
-                                        type="text"
+                                        type="date"
                                         label="Start Date"
                                         {...register(`educations.${index}.startDate`)}
                                         error={errors.educations?.[index]?.startDate}
                                     />
                                     <UiFormInput
-                                        type="text"
+                                        type="date"
                                         label="End Date (Optional)"
                                         {...register(`educations.${index}.endDate`)}
                                         error={errors.educations?.[index]?.endDate}
@@ -181,10 +196,10 @@ export default function EducationForm() {
                                     error={errors.educations?.[index]?.description}
                                 />
                             </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+                        </SortableEducationCard>
+                    ))}
+                </div>
+            </DragDropProvider>
 
             {fields.length > 0 && (
                 <div className="flex justify-end pt-6">

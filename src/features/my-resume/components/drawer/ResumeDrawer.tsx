@@ -13,6 +13,7 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from '@/components/ui/drawer'
+import { cn } from '@/lib/utils'
 
 // Define the directions supported by Vaul
 type DrawerDirection = 'top' | 'bottom' | 'left' | 'right'
@@ -50,7 +51,7 @@ export function ResumeDrawer({
 
     return (
         <Drawer direction={direction} open={open} onOpenChange={onOpenChange}>
-            <DrawerContent className={`${directionStyles[direction]} outline-none ${className}`}>
+            <DrawerContent className={cn(directionStyles[direction], 'outline-none', className)}>
                 {/* Handle bar for bottom/top drawers */}
                 {!isVertical && (
                     <div className="bg-muted mx-auto mt-4 h-2 w-25 rounded-full border border-white/20 shadow-sm backdrop-blur-md" />
