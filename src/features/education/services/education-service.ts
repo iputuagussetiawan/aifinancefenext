@@ -11,6 +11,14 @@ export const educationService = {
             // We usually don't cache registration attempts
             cache: 'no-store',
         }),
+
+    updateAll: (data: EducationDTO[]) =>
+        api.API<IEducationResponse>('/api/education/bulk-update', {
+            method: 'PUT',
+            body: JSON.stringify({ educations: data }),
+            cache: 'no-store',
+        }),
+
     get: () =>
         api.API<IEducationsResponse>('/api/education/get', {
             method: 'GET',

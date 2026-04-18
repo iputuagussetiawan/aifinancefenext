@@ -26,10 +26,11 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { RESUME_MODE, type ResumeMode } from '@/lib/constants'
 
-import { ResumeDrawer } from './drawer/resume-drawer'
-import BioForm from './forms/bio-form'
-import PersonalInfoForm from './forms/personal-info-form'
-import PhotoProfileForm from './forms/photo-profile-form'
+import { ResumeDrawer } from './drawer/ResumeDrawer'
+import BioForm from './forms/BioForm'
+import EducationForm from './forms/EducationForm'
+import PersonalInfoForm from './forms/PersonalInfoForm'
+import PhotoProfileForm from './forms/PhotoProfileForm'
 
 type MyResumeToolbarProps = {
     onPreview: () => void
@@ -53,6 +54,7 @@ export default function MyResumeToolbar({
     const isManageMode = currentMode === RESUME_MODE.MANAGE
     const [isOpenPersonalDrawer, setIsOpenPersonalDrawer] = useState(false)
     const [isOpenAboutDrawer, SetIsOpenAboutDrawer] = useState(false)
+    const [isOpenEducationDrawer, setIsOpenEducationDrawer] = useState(false)
 
     return (
         <>
@@ -143,7 +145,12 @@ export default function MyResumeToolbar({
                                         <DropdownMenuLabel className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
                                             Experience & Education
                                         </DropdownMenuLabel>
-                                        <DropdownMenuItem className="hover:cursor-pointer">
+                                        <DropdownMenuItem
+                                            onSelect={() => {
+                                                setIsOpenEducationDrawer(true)
+                                            }}
+                                            className="hover:cursor-pointer"
+                                        >
                                             <GraduationCap className="mr-2 h-4 w-4" />
                                             <span>Educations</span>
                                         </DropdownMenuItem>
@@ -244,6 +251,16 @@ export default function MyResumeToolbar({
                 <div className="grid gap-4">
                     <PhotoProfileForm />
                     <BioForm />
+                </div>
+            </ResumeDrawer>
+            <ResumeDrawer
+                direction="right"
+                title="Education"
+                open={isOpenEducationDrawer}
+                onOpenChange={setIsOpenEducationDrawer}
+            >
+                <div className="grid gap-4">
+                    <EducationForm />
                 </div>
             </ResumeDrawer>
         </>

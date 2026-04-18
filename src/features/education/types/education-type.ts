@@ -6,31 +6,31 @@ export const educationValidation = z
         degree: z.string().min(2, 'Degree must be at least 2 characters'),
         fieldOfStudy: z.string().min(2, 'Field of study must be at least 2 characters'),
 
-        // date validation, assuming ISO string format or native Date object usage
-        startDate: z
-            .union([z.date(), z.string().min(1, 'Start date is required')])
-            .pipe(z.coerce.date())
-            .refine((d) => d < new Date(), { message: 'Start date must be in the past' }),
+        // Start Date: Coerce handles strings from <input type="date" />
+        startDate: z.string(),
 
-        // end date can be null if user is currently studying
-        endDate: z.coerce.date().nullable().optional(),
+        // End Date: Converts empty strings to null, then validates as a Date
+        endDate: z.string(),
 
-        // optional text fields
         grade: z.string().optional(),
         activities: z.string().optional(),
         description: z.string().optional(),
 
-        // number input validation for ordering multiple entries
-        orderPosition: z.number().int().nonnegative().default(0),
-
-        // timestamp fields, usually automatically managed
-        createdAt: z.date().optional(),
-        updatedAt: z.date().optional(),
+        orderPosition: z.number().int(),
     })
-    .refine((data) => !data.endDate || data.endDate > data.startDate, {
-        message: 'End date must be after start date',
-        path: ['endDate'],
-    })
+    .refine(
+        (data) => {
+            if (!data.endDate || !data.startDate) return true
+            return data.endDate > data.startDate
+        },
+        {
+            message: 'End date must be after start date',
+            path: ['endDate'],
+        },
+    )
+export const updateEducationListValidation = z.object({
+    educations: z.array(educationValidation),
+})
 
 export type EducationInputType = z.infer<typeof educationValidation>
 export type EducationDTO = z.infer<typeof educationValidation>
