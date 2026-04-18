@@ -1,60 +1,39 @@
-'use client'
-
-import React, { memo } from 'react'
-import { useSortable } from '@dnd-kit/react/sortable'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 
-interface SortableCardProps {
-    id: string
-    index: number
-    onRemove: (index: number) => void
-    children: React.ReactNode
-}
+export function SortableEducationCard({ id, children, onRemove }: any) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id,
+    })
 
-export const SortableEducationCard = memo(
-    ({ id, index, onRemove, children }: SortableCardProps) => {
-        const { ref, isDragging } = useSortable({ id, index })
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 0,
+        position: 'relative' as const,
+    }
 
-        return (
-            <div ref={ref} className="transition-all duration-200">
-                <Card
-                    className={cn(
-                        'relative overflow-hidden border-l-4 transition-all',
-                        'bg-card border-l-[#eab308] shadow-sm',
-                        isDragging &&
-                            'z-50 scale-[1.02] border-dashed border-[#eab308] bg-[#eab308]/5 opacity-80 shadow-xl',
-                    )}
-                >
-                    <CardContent className="pt-6">
-                        <div className="mb-4 flex items-center justify-between">
-                            <div className="flex cursor-move items-center gap-2 opacity-40 transition-opacity hover:opacity-100">
-                                <GripVertical size={20} />
-                                <span className="text-[10px] font-bold tracking-wider uppercase">
-                                    Reorder Item
-                                </span>
-                            </div>
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`bg-card rounded-lg border p-4 shadow-sm ${isDragging ? 'ring-primary opacity-50 ring-2' : ''}`}
+        >
+            <div className="flex gap-4">
+                {/* DRAG HANDLE */}
+                <div {...attributes} {...listeners} className="cursor-grab p-1">
+                    <GripVertical className="text-muted-foreground" />
+                </div>
 
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive hover:bg-destructive/10 h-8 w-8"
-                                onClick={() => onRemove(index)}
-                            >
-                                <Trash2 size={18} />
-                            </Button>
-                        </div>
+                <div className="flex-1">{children}</div>
 
-                        {children}
-                    </CardContent>
-                </Card>
+                <Button variant="ghost" size="icon" onClick={onRemove} className="text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                </Button>
             </div>
-        )
-    },
-)
-
-SortableEducationCard.displayName = 'SortableEducationCard'
+        </div>
+    )
+}

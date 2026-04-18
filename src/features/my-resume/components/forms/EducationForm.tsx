@@ -1,7 +1,20 @@
 'use client'
 
 import React from 'react'
-import { DragDropProvider } from '@dnd-kit/react'
+import {
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core'
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Plus, Save } from 'lucide-react'
@@ -17,110 +30,115 @@ import {
 import { Button } from '@/components/ui/button'
 import { UiFormInput } from '@/components/ui/UiFormInput'
 
-import SortableList from '../Sortable'
 import { SortableEducationCard } from '../SortableEducationCard'
 
 export default function EducationForm() {
     const queryClient = useQueryClient()
 
-    // 1. Fetch existing data
+    // 1. Sensors for Touch/Mouse/Keyboard support
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 8 }, // Prevents accidental drags when clicking inputs
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+    )
+
     const { data: response, isLoading } = useQuery({
         queryKey: ['education'],
         queryFn: educationService.get,
     })
 
-    // 2. Setup Form
     const {
         register,
         control,
         handleSubmit,
         setValue,
-        getValues,
         reset,
         formState: { errors },
     } = useForm<{ educations: EducationInputType[] }>({
         resolver: zodResolver(updateEducationListValidation),
-        defaultValues: {
-            educations: [],
-        },
+        defaultValues: { educations: [] },
     })
 
-    // 3. Field Array for dynamic rows
-    const {
-        fields,
-        append,
-        remove,
-        move: moveField,
-    } = useFieldArray({
+    const { fields, append, remove, move } = useFieldArray({
         control,
         name: 'educations',
     })
 
-    // 4. Sync data when API returns
     React.useEffect(() => {
         if (response?.data) {
-            const formattedEducations = response.data
-                .sort((a, b) => (a.orderPosition ?? 0) - (b.orderPosition ?? 0)) // Ensure initial sort
+            const formatted = [...response.data]
+                .sort((a, b) => (a.orderPosition ?? 0) - (b.orderPosition ?? 0))
                 .map((edu: IEducation) => ({
                     ...edu,
-                    endDate: edu.endDate === null ? undefined : edu.endDate,
-                    startDate: edu.startDate,
+                    endDate: edu.endDate ?? undefined,
                 }))
-
-            reset({ educations: formattedEducations })
+            reset({ educations: formatted })
         }
     }, [response, reset])
 
-    // 5. Mutation for Saving
     const { mutate, isPending } = useMutation({
         mutationFn: (educations: EducationInputType[]) => educationService.updateAll(educations),
         onSuccess: () => {
             toast.success('Education history updated')
             queryClient.invalidateQueries({ queryKey: ['education'] })
         },
-        onError: (error: any) => {
-            toast.error(error.response?.data?.message || 'Failed to save updates')
-        },
     })
 
+    // 2. Handle Reordering
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
+
+        if (over && active.id !== over.id) {
+            const oldIndex = fields.findIndex((f) => f.id === active.id)
+            const newIndex = fields.findIndex((f) => f.id === over.id)
+
+            // Move the field visually
+            move(oldIndex, newIndex)
+
+            // Update orderPosition values
+            const updatedFields = [...fields]
+            const [movedItem] = updatedFields.splice(oldIndex, 1)
+            updatedFields.splice(newIndex, 0, movedItem)
+
+            updatedFields.forEach((_, index) => {
+                setValue(`educations.${index}.orderPosition`, index)
+            })
+        }
+    }
+
     const onSubmit = (data: { educations: EducationInputType[] }) => {
-        // FINAL GUARD: Map index to orderPosition right before sending to backend
         const orderedData = data.educations.map((edu, index) => ({
             ...edu,
             orderPosition: index,
         }))
-
+        console.log('Submitting ordered educations:', orderedData)
         mutate(orderedData)
     }
 
     if (isLoading)
         return (
             <div className="p-10 text-center">
-                <Loader2 className="mr-2 inline animate-spin" /> Loading Education...
+                <Loader2 className="animate-spin" />
             </div>
         )
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex items-center justify-between border-b pb-4">
-                <SortableList />
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Education</h2>
-                    <p className="text-muted-foreground text-sm">
-                        Add your academic background here.
-                    </p>
-                </div>
+                <h2 className="text-2xl font-bold">Education</h2>
                 <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     onClick={() =>
                         append({
                             schoolName: '',
                             degree: '',
-                            fieldOfStudy: '',
+                            fieldOfStudy: '', // Added missing field
                             startDate: '',
-                            endDate: '',
+                            endDate: '', // Or '' depending on your schema
                             grade: '',
                             activities: '',
                             description: '',
@@ -132,113 +150,84 @@ export default function EducationForm() {
                 </Button>
             </div>
 
-            <DragDropProvider
-                onDragEnd={(event) => {
-                    const activeId = event.operation.source?.id
-                    const overId = event.operation.target?.id
-
-                    if (activeId && overId && activeId !== overId) {
-                        const from = fields.findIndex((f) => f.id === activeId)
-                        const to = fields.findIndex((f) => f.id === overId)
-
-                        if (from !== -1 && to !== -1) {
-                            // Sync visuals
-                            moveField(from, to)
-
-                            // Sync orderPosition values in form state
-                            const currentValues = getValues('educations')
-                            const updatedValues = [...currentValues]
-                            const [movedItem] = updatedValues.splice(from, 1)
-                            updatedValues.splice(to, 0, movedItem)
-
-                            updatedValues.forEach((_, index) => {
-                                setValue(`educations.${index}.orderPosition`, index, {
-                                    shouldDirty: true,
-                                })
-                            })
-                        }
-                    }
-                }}
+            {/* 3. DndContext Wrapper */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
             >
-                <div className="space-y-6">
-                    {fields.map((field, index) => (
-                        <SortableEducationCard
-                            key={field.id}
-                            id={field.id}
-                            index={index}
-                            onRemove={remove}
-                        >
-                            {/* REGISTER HIDDEN FIELD */}
-
-                            <p>{index}</p>
-                            <input
-                                type="hidden"
-                                {...register(`educations.${index}.orderPosition`)}
-                            />
-
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <UiFormInput
-                                    label="School/University Name"
-                                    placeholder="e.g. Stikom Bali"
-                                    {...register(`educations.${index}.schoolName`)}
-                                    error={errors.educations?.[index]?.schoolName}
+                {/* 4. SortableContext Wrapper */}
+                <SortableContext
+                    items={fields.map((f) => f.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <div className="space-y-6">
+                        {fields.map((field, index) => (
+                            <SortableEducationCard
+                                key={field.id}
+                                id={field.id} // use field.id from useFieldArray
+                                index={index}
+                                onRemove={() => remove(index)}
+                            >
+                                <input
+                                    type="hidden"
+                                    {...register(`educations.${index}.orderPosition`)}
                                 />
-                                <UiFormInput
-                                    label="Degree"
-                                    placeholder="e.g. S1 Sistem Komputer"
-                                    {...register(`educations.${index}.degree`)}
-                                    error={errors.educations?.[index]?.degree}
-                                />
-                                <UiFormInput
-                                    label="Field of Study"
-                                    placeholder="e.g. Computer Science"
-                                    {...register(`educations.${index}.fieldOfStudy`)}
-                                    error={errors.educations?.[index]?.fieldOfStudy}
-                                />
-                                <UiFormInput
-                                    label="Grade / GPA"
-                                    placeholder="e.g. 3.8"
-                                    {...register(`educations.${index}.grade`)}
-                                    error={errors.educations?.[index]?.grade}
-                                />
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <UiFormInput
-                                        type="date"
-                                        label="Start Date"
-                                        {...register(`educations.${index}.startDate`)}
-                                        error={errors.educations?.[index]?.startDate}
+                                        label="School/University Name"
+                                        {...register(`educations.${index}.schoolName`)}
+                                        error={errors.educations?.[index]?.schoolName}
                                     />
                                     <UiFormInput
-                                        type="date"
-                                        label="End Date (Optional)"
-                                        {...register(`educations.${index}.endDate`)}
-                                        error={errors.educations?.[index]?.endDate}
+                                        label="Degree"
+                                        {...register(`educations.${index}.degree`)}
+                                        error={errors.educations?.[index]?.degree}
+                                    />
+                                    <UiFormInput
+                                        label="Field of Study"
+                                        {...register(`educations.${index}.fieldOfStudy`)}
+                                        error={errors.educations?.[index]?.fieldOfStudy}
+                                    />
+                                    <UiFormInput
+                                        label="Grade / GPA"
+                                        {...register(`educations.${index}.grade`)}
+                                        error={errors.educations?.[index]?.grade}
+                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <UiFormInput
+                                            type="text"
+                                            label="Start Date"
+                                            {...register(`educations.${index}.startDate`)}
+                                            error={errors.educations?.[index]?.startDate}
+                                        />
+                                        <UiFormInput
+                                            type="text"
+                                            label="End Date (Optional)"
+                                            {...register(`educations.${index}.endDate`)}
+                                            error={errors.educations?.[index]?.endDate}
+                                        />
+                                    </div>
+                                    <UiFormInput
+                                        label="Description"
+                                        {...register(`educations.${index}.description`)}
+                                        error={errors.educations?.[index]?.description}
                                     />
                                 </div>
-                                <UiFormInput
-                                    label="Description"
-                                    placeholder="Briefly describe your studies..."
-                                    {...register(`educations.${index}.description`)}
-                                    error={errors.educations?.[index]?.description}
-                                />
-                            </div>
-                        </SortableEducationCard>
-                    ))}
-                </div>
-            </DragDropProvider>
+                            </SortableEducationCard>
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
 
-            {fields.length > 0 && (
-                <div className="flex justify-end pt-6">
-                    <Button type="submit" disabled={isPending} className="px-8">
-                        {isPending ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                            <Save className="mr-2 h-4 w-4" />
-                        )}
-                        Save Education History
-                    </Button>
-                </div>
-            )}
+            <Button type="submit" disabled={isPending} className="w-full md:w-auto">
+                {isPending ? (
+                    <Loader2 className="animate-spin" />
+                ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                )}
+                Save Changes
+            </Button>
         </form>
     )
 }
