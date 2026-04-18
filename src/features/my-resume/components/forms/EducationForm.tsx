@@ -127,8 +127,12 @@ export default function EducationForm() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            <div className="flex items-center justify-between border-b pb-4">
-                <h2 className="text-2xl font-bold">Education</h2>
+            <div className="bg-background sticky top-0 z-20 flex items-center justify-between border-b pt-2 pb-4">
+                <div>
+                    <h2 className="text-2xl font-bold">Education</h2>
+                    <p className="text-muted-foreground text-sm">Manage your academic history</p>
+                </div>
+
                 <Button
                     type="button"
                     variant="outline"
@@ -220,14 +224,16 @@ export default function EducationForm() {
                 </SortableContext>
             </DndContext>
 
-            <Button type="submit" disabled={isPending} className="w-full md:w-auto">
-                {isPending ? (
-                    <Loader2 className="animate-spin" />
-                ) : (
-                    <Save className="mr-2 h-4 w-4" />
-                )}
-                Save Changes
-            </Button>
+            <div className="bg-background sticky bottom-0 z-20 mt-auto flex justify-end border-t pt-4 pb-2">
+                <Button type="submit" disabled={isPending} className="w-full px-8 md:w-auto">
+                    {isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Save className="mr-2 h-4 w-4" />
+                    )}
+                    Save Changes
+                </Button>
+            </div>
         </form>
     )
 }

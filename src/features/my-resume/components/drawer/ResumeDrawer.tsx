@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { X } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +27,9 @@ interface ResumeDrawerProps {
     children: React.ReactNode
     footer?: React.ReactNode
     className?: string
+    // onConfirm?: () => void // New prop for click event
+    // isLoading?: boolean    // For button state
+    // confirmText?: string
 }
 
 export function ResumeDrawer({
@@ -38,15 +41,18 @@ export function ResumeDrawer({
     children,
     footer,
     className,
+    // onConfirm,
+    // isLoading = false,
+    // confirmText = 'Confirm',
 }: ResumeDrawerProps) {
     // Logic to determine styles based on direction
     const isVertical = direction === 'right' || direction === 'left'
 
     const directionStyles = {
-        right: 'fixed right-0 top-0 bottom-0 mt-0 h-screen w-full sm:min-w-[25vw] rounded-none border-l',
-        left: 'fixed left-0 top-0 bottom-0 mt-0 h-screen w-full sm:w-[450px] rounded-none border-r',
-        bottom: 'fixed inset-x-0 bottom-0 mt-24 max-h-[96%] rounded-t-[10px] border-t',
-        top: 'fixed inset-x-0 top-0 mb-24 max-h-[96%] rounded-b-[10px] border-b',
+        right: 'fixed right-0 top-0 bottom-0 mt-0 h-screen w-full sm:min-w-[25vw] rounded-none border-l z-10000',
+        left: 'fixed left-0 top-0 bottom-0 mt-0 h-screen w-full sm:w-[450px] rounded-none border-r z-10000',
+        bottom: 'fixed inset-x-0 bottom-0 mt-24 max-h-[96%] rounded-t-[10px] border-t z-10000',
+        top: 'fixed inset-x-0 top-0 mb-24 max-h-[96%] rounded-b-[10px] border-b z-10000',
     }
 
     return (
@@ -58,7 +64,7 @@ export function ResumeDrawer({
                 )}
 
                 <div className="flex h-full flex-col">
-                    <DrawerHeader className="px-6 py-4">
+                    <DrawerHeader className="sr-only px-6 py-4">
                         <div className="flex items-center justify-between">
                             <DrawerTitle className="text-xl font-bold">{title}</DrawerTitle>
                             <DrawerClose asChild>
@@ -73,20 +79,23 @@ export function ResumeDrawer({
                         </div>
                         {description && <DrawerDescription>{description}</DrawerDescription>}
                     </DrawerHeader>
-
-                    <div className="flex-1 overflow-y-auto px-6 py-2">{children}</div>
-
+                    <div className="flex-1 overflow-y-auto px-6">{children}</div>
                     {/* <DrawerFooter className="border-t px-6 py-4">
-                        {footer || (
-                            <div className="flex w-full gap-3">
-                                <Button className="flex-1">Confirm</Button>
-                                <DrawerClose asChild>
-                                    <Button variant="outline" className="flex-1">
-                                        Cancel
-                                    </Button>
-                                </DrawerClose>
-                            </div>
-                        )}
+                        <div className="flex w-full gap-3">
+                            <Button 
+                                className="flex-1 hover:cursor-pointer" 
+                                onClick={onConfirm} 
+                                disabled={isLoading}
+                            >
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {confirmText}
+                            </Button>
+                            <DrawerClose asChild>
+                                <Button variant="outline" className="flex-1 hover:cursor-pointer">
+                                    Cancel
+                                </Button>
+                            </DrawerClose>
+                        </div>
                     </DrawerFooter> */}
                 </div>
             </DrawerContent>
