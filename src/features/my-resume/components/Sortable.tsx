@@ -1,80 +1,110 @@
 'use client'
 
-import React, { useState } from 'react'
-import { move } from '@dnd-kit/helpers'
-import { DragDropProvider } from '@dnd-kit/react'
-import { Plus } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import {
+    closestCenter,
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core'
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { useQuery } from '@tanstack/react-query'
+import { Loader2, Plus } from 'lucide-react'
 
+import { educationService } from '@/features/education/services/education-service'
+import type { IEducation } from '@/features/education/types/education-type'
 import { Button } from '@/components/ui/button'
 
 import { SortableItem } from './SortableItem'
 
-interface Todo {
-    id: string
-    text: string
-    completed: boolean
-    orderPosition: number
-}
-
 export default function SortableList() {
-    const [todos, setTodos] = useState<Todo[]>([
-        { id: '1', text: 'Master React Hook Form', completed: false, orderPosition: 0 },
-        { id: '2', text: 'Build U-LMS Dashboard', completed: false, orderPosition: 1 },
-        { id: '3', text: 'Configure dnd-kit reordering', completed: true, orderPosition: 2 },
-    ])
+    const { data: response, isLoading } = useQuery({
+        queryKey: ['education-list'],
+        queryFn: educationService.get,
+    })
+
+    const [list, setList] = useState<IEducation[]>([])
+
+    // Setup sensors for better UX
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+    )
+
+    useEffect(() => {
+        if (response?.data) {
+            const sortedData = [...response.data].sort(
+                (a, b) => (a.orderPosition ?? 0) - (b.orderPosition ?? 0),
+            )
+            setList(sortedData)
+        }
+    }, [response])
 
     const handleDragEnd = (event: any) => {
-        // 1. Get the reordered array using dnd-kit helper
-        const reorderedTodos = move(todos, event)
+        const { active, over } = event
 
-        if (reorderedTodos) {
-            // 2. Map the new index to the orderPosition property
-            // This ensures your data always matches the visual order
-            const updatedWithOrder = reorderedTodos.map((todo, index) => ({
-                ...todo,
-                orderPosition: index,
-            }))
+        if (over && active.id !== over.id) {
+            setList((items) => {
+                const oldIndex = items.findIndex((item) => item._id === active.id)
+                const newIndex = items.findIndex((item) => item._id === over.id)
 
-            console.log('Fresh Todo Order:', updatedWithOrder)
-            setTodos(updatedWithOrder)
+                const newList = arrayMove(items, oldIndex, newIndex)
+
+                // Update orderPosition for backend
+                return newList.map((item, index) => ({
+                    ...item,
+                    orderPosition: index,
+                }))
+            })
         }
     }
 
-    const addTodo = () => {
-        const newTodo: Todo = {
-            id: crypto.randomUUID(),
-            text: 'New Task',
-            completed: false,
-            orderPosition: todos.length,
-        }
-        setTodos([...todos, newTodo])
-    }
+    if (isLoading)
+        return (
+            <div className="p-10 text-center">
+                <Loader2 className="inline animate-spin" />
+            </div>
+        )
 
     return (
         <div className="mx-auto mt-10 max-w-md space-y-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Tasks</h2>
-                <Button size="sm" onClick={addTodo} variant="outline">
-                    <Plus className="mr-2 h-4 w-4" /> Add Task
-                </Button>
-            </div>
+            <h2 className="text-xl font-bold">Education History</h2>
 
-            <DragDropProvider onDragEnd={handleDragEnd}>
-                <ul className="space-y-2 p-0">
-                    {todos.map((todo, index) => (
-                        <SortableItem key={todo.id} id={todo.id} index={index}>
-                            <div className="flex flex-col">
-                                <span className={todo.completed ? 'line-through opacity-50' : ''}>
-                                    {todo.text}
-                                </span>
-                                <span className="text-muted-foreground text-[10px]">
-                                    Position: {todo.orderPosition}
-                                </span>
-                            </div>
-                        </SortableItem>
-                    ))}
-                </ul>
-            </DragDropProvider>
+            {/* Use DndContext (Core) */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+            >
+                {/* Use SortableContext (Sortable package) */}
+                <SortableContext
+                    items={list.map((edu) => edu._id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <ul className="list-none space-y-2 p-0">
+                        {list.map((edu, index) => (
+                            <SortableItem key={edu._id} id={edu._id} index={index}>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-semibold">{edu.degree}</span>
+                                    <span className="text-muted-foreground text-xs">
+                                        {edu.schoolName}
+                                    </span>
+                                    <span>{index}</span>
+                                </div>
+                            </SortableItem>
+                        ))}
+                    </ul>
+                </SortableContext>
+            </DndContext>
         </div>
     )
 }
