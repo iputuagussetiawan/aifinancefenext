@@ -1,17 +1,15 @@
 'use client'
 
 import React from 'react'
-import { move } from '@dnd-kit/helpers'
 import { DragDropProvider } from '@dnd-kit/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { GraduationCap, Loader2, Plus, Save, Trash2 } from 'lucide-react'
+import { Loader2, Plus, Save } from 'lucide-react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { educationService } from '@/features/education/services/education-service'
 import {
-    educationValidation,
     updateEducationListValidation,
     type EducationInputType,
     type IEducation,
@@ -19,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { UiFormInput } from '@/components/ui/UiFormInput'
 
+import SortableList from '../Sortable'
 import { SortableEducationCard } from '../SortableEducationCard'
 
 export default function EducationForm() {
@@ -35,10 +34,12 @@ export default function EducationForm() {
         register,
         control,
         handleSubmit,
+        setValue,
+        getValues,
         reset,
         formState: { errors },
     } = useForm<{ educations: EducationInputType[] }>({
-        resolver: zodResolver(updateEducationListValidation), // Note: You might need to wrap this in z.object({ educations: z.array(...) })
+        resolver: zodResolver(updateEducationListValidation),
         defaultValues: {
             educations: [],
         },
@@ -58,14 +59,13 @@ export default function EducationForm() {
     // 4. Sync data when API returns
     React.useEffect(() => {
         if (response?.data) {
-            // Map the data to fix the null vs undefined mismatch
-            const formattedEducations = response.data.map((edu: IEducation) => ({
-                ...edu,
-                // If edu.endDate is null, convert it to undefined to satisfy the form type
-                endDate: edu.endDate === null ? undefined : edu.endDate,
-                // Ensure dates are strings or Date objects as expected by your specific Zod setup
-                startDate: edu.startDate,
-            }))
+            const formattedEducations = response.data
+                .sort((a, b) => (a.orderPosition ?? 0) - (b.orderPosition ?? 0)) // Ensure initial sort
+                .map((edu: IEducation) => ({
+                    ...edu,
+                    endDate: edu.endDate === null ? undefined : edu.endDate,
+                    startDate: edu.startDate,
+                }))
 
             reset({ educations: formattedEducations })
         }
@@ -73,8 +73,7 @@ export default function EducationForm() {
 
     // 5. Mutation for Saving
     const { mutate, isPending } = useMutation({
-        mutationFn: (data: { educations: EducationInputType[] }) =>
-            educationService.updateAll(data.educations), // Assuming you have a bulk update service
+        mutationFn: (educations: EducationInputType[]) => educationService.updateAll(educations),
         onSuccess: () => {
             toast.success('Education history updated')
             queryClient.invalidateQueries({ queryKey: ['education'] })
@@ -85,7 +84,13 @@ export default function EducationForm() {
     })
 
     const onSubmit = (data: { educations: EducationInputType[] }) => {
-        mutate(data)
+        // FINAL GUARD: Map index to orderPosition right before sending to backend
+        const orderedData = data.educations.map((edu, index) => ({
+            ...edu,
+            orderPosition: index,
+        }))
+
+        mutate(orderedData)
     }
 
     if (isLoading)
@@ -98,6 +103,7 @@ export default function EducationForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <div className="flex items-center justify-between border-b pb-4">
+                <SortableList />
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight">Education</h2>
                     <p className="text-muted-foreground text-sm">
@@ -128,17 +134,29 @@ export default function EducationForm() {
 
             <DragDropProvider
                 onDragEnd={(event) => {
-                    // 1. Get the new array order
-                    const updatedFields = move(fields, event)
-
-                    // 2. Find the old and new index to keep React Hook Form in sync
                     const activeId = event.operation.source?.id
                     const overId = event.operation.target?.id
 
                     if (activeId && overId && activeId !== overId) {
                         const from = fields.findIndex((f) => f.id === activeId)
                         const to = fields.findIndex((f) => f.id === overId)
-                        moveField(from, to) // This syncs React Hook Form state
+
+                        if (from !== -1 && to !== -1) {
+                            // Sync visuals
+                            moveField(from, to)
+
+                            // Sync orderPosition values in form state
+                            const currentValues = getValues('educations')
+                            const updatedValues = [...currentValues]
+                            const [movedItem] = updatedValues.splice(from, 1)
+                            updatedValues.splice(to, 0, movedItem)
+
+                            updatedValues.forEach((_, index) => {
+                                setValue(`educations.${index}.orderPosition`, index, {
+                                    shouldDirty: true,
+                                })
+                            })
+                        }
                     }
                 }}
             >
@@ -150,6 +168,14 @@ export default function EducationForm() {
                             index={index}
                             onRemove={remove}
                         >
+                            {/* REGISTER HIDDEN FIELD */}
+
+                            <p>{index}</p>
+                            <input
+                                type="hidden"
+                                {...register(`educations.${index}.orderPosition`)}
+                            />
+
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <UiFormInput
                                     label="School/University Name"

@@ -1,36 +1,28 @@
 'use client'
 
+import React from 'react'
 import { useSortable } from '@dnd-kit/react/sortable'
-
-import { cn } from '@/lib/utils'
+import { GripVertical } from 'lucide-react'
 
 interface SortableItemProps {
-    id: number | string
+    id: string
     index: number
+    children: React.ReactNode
 }
 
-export function SortableItem({ id, index }: SortableItemProps) {
-    // The new version simplifies this to just a 'ref'
-    const { ref, isDragging } = useSortable({ id, index })
+export function SortableItem({ id, children }: SortableItemProps) {
+    const { ref, isDragging } = useSortable({ id })
 
     return (
         <li
             ref={ref}
-            className={cn(
-                // Base Styles
-                'mb-2 cursor-move list-none rounded border p-4 transition-all',
-                // Default Styles (Not Dragging)
-                'border-solid shadow-sm active:scale-[1.02]',
-                // Dragging Styles
-                isDragging &&
-                    'scale-100 border-dashed border-[#eab308] bg-[#eab308]/5 opacity-80 shadow-none',
-            )}
+            className={`bg-card flex items-center gap-3 rounded-lg border p-4 shadow-sm transition-all ${isDragging ? 'border-primary bg-primary/5 z-50 scale-105 opacity-80 shadow-lg' : 'opacity-100'} `}
         >
-            <div className="flex items-center gap-3">
-                <span className={cn('font-medium', isDragging && 'text-[#eab308]')}>
-                    Item {id} Key {index}
-                </span>
+            <div className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing">
+                <GripVertical size={20} />
             </div>
+
+            <div className="flex-1">{children}</div>
         </li>
     )
 }

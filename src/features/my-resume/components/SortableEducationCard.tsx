@@ -24,20 +24,17 @@ export const SortableEducationCard = memo(
                 <Card
                     className={cn(
                         'relative overflow-hidden border-l-4 transition-all',
-                        // Normal State
                         'bg-card border-l-[#eab308] shadow-sm',
-                        // Dragging State: Yellow dashed border & tinted background
                         isDragging &&
-                            'border-dashed border-[#eab308] bg-[#eab308]/5 opacity-80 shadow-none',
+                            'z-50 scale-[1.02] border-dashed border-[#eab308] bg-[#eab308]/5 opacity-80 shadow-xl',
                     )}
                 >
                     <CardContent className="pt-6">
-                        <div className="pointer-events-none absolute top-2 right-2 left-2 flex items-center justify-between">
-                            {/* Drag Handle: Explicitly styled for the user */}
-                            <div className="pointer-events-auto flex cursor-move items-center gap-2 opacity-40 transition-opacity hover:opacity-100">
-                                <GripVertical size={20} className="text-muted-foreground" />
+                        <div className="mb-4 flex items-center justify-between">
+                            <div className="flex cursor-move items-center gap-2 opacity-40 transition-opacity hover:opacity-100">
+                                <GripVertical size={20} />
                                 <span className="text-[10px] font-bold tracking-wider uppercase">
-                                    Drag to reorder
+                                    Reorder Item
                                 </span>
                             </div>
 
@@ -45,14 +42,14 @@ export const SortableEducationCard = memo(
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="text-destructive hover:bg-destructive/10 pointer-events-auto h-8 w-8"
+                                className="text-destructive hover:bg-destructive/10 h-8 w-8"
                                 onClick={() => onRemove(index)}
                             >
                                 <Trash2 size={18} />
                             </Button>
                         </div>
 
-                        <div className="mt-4">{children}</div>
+                        {children}
                     </CardContent>
                 </Card>
             </div>
