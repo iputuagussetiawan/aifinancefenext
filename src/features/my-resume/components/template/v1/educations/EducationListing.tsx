@@ -3,9 +3,9 @@ import { useQuery } from '@tanstack/react-query'
 import { educationService } from '@/features/education/services/education-service'
 import type { IEducation } from '@/features/education/types/education-type'
 
-import EducationSkeleton from './educations-skeleton'
+import EducationSkeleton from './EducationSkeleton'
 
-const Educations = () => {
+const EducationListing = () => {
     const { data: educations, isLoading } = useQuery({
         queryKey: ['educations'],
         queryFn: educationService.get,
@@ -25,8 +25,7 @@ const Educations = () => {
             >
                 Education
             </h2>
-            <div className="mb-4 h-[1px] w-full" style={{ backgroundColor: '#d1d5db' }}></div>
-
+            <div className="mb-4 h-px w-full" style={{ backgroundColor: '#d1d5db' }}></div>
             {isLoading ? (
                 <EducationSkeleton />
             ) : educationList.length > 0 ? (
@@ -54,4 +53,4 @@ const Educations = () => {
     )
 }
 
-export default Educations
+export default EducationListing

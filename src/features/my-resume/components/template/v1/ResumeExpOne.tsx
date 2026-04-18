@@ -1,4 +1,4 @@
-import Educations from './educations'
+import EducationListing from './educations/EducationListing'
 
 const ResumeExpOne = () => {
     return (
@@ -9,7 +9,7 @@ const ResumeExpOne = () => {
             {/* LEFT COLUMN: Education, Skills, Language */}
             <div className="w-1/3 pr-8">
                 {/* EDUCATION */}
-                <Educations />
+                <EducationListing />
 
                 {/* SKILLS */}
                 <div className="mb-10">
@@ -19,10 +19,7 @@ const ResumeExpOne = () => {
                     >
                         Skills
                     </h2>
-                    <div
-                        className="mb-4 h-[1px] w-full"
-                        style={{ backgroundColor: '#d1d5db' }}
-                    ></div>
+                    <div className="mb-4 h-px w-full" style={{ backgroundColor: '#d1d5db' }}></div>
 
                     {[
                         { name: 'Photoshop', level: '85%' },

@@ -1,4 +1,4 @@
-import MyResume from '@/features/my-resume/components/my-resume'
+import MyResume from '@/features/my-resume/components/MyResume'
 
 const MyResumePage = () => {
     return (

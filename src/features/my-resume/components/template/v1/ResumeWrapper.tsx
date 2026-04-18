@@ -1,7 +1,7 @@
 import React from 'react'
 
-import ResumeFooter from './resume-footer'
-import ResumeHeader from './resume-header'
+import ResumeFooter from './ResumeFooter'
+import ResumeHeader from './ResumeHeader'
 
 const ResumeWrapper = ({
     children,
