@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { DateFormat } from '@/types/date'
 import {
     closestCenter,
     DndContext,
@@ -204,6 +205,7 @@ export default function EducationForm() {
                                             label="Start Date"
                                             name={`educations.${index}.startDate`}
                                             control={control}
+                                            displayFormat={DateFormat.FULL_DISPLAY} // User sees: 19 April 2026
                                             error={errors.educations?.[index]?.startDate}
                                         />
 
@@ -211,6 +213,7 @@ export default function EducationForm() {
                                             label="End Date (Optional)"
                                             name={`educations.${index}.endDate`}
                                             control={control}
+                                            displayFormat={DateFormat.FULL_DISPLAY} // User sees: 19 April 2026
                                             error={errors.educations?.[index]?.endDate}
                                         />
                                     </div>
