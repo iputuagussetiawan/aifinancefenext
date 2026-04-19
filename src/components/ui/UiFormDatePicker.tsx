@@ -1,4 +1,4 @@
-import type { DateFormat } from '@/types/date'
+import { DateFormat, type DateFormatType } from '@/types/date'
 import { format, isValid, parse } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { Control, Controller } from 'react-hook-form'
@@ -14,7 +14,7 @@ interface DatePickerProps {
     label: string
     error?: any
     /** Format shown on the button (e.g., "PPP" or "dd MMM yyyy") */
-    displayFormat?: DateFormat | string
+    displayFormat?: DateFormat | DateFormatType
     minYear?: number
     maxYear?: number
 }
@@ -24,7 +24,7 @@ export function UiFormDatePicker({
     name,
     label,
     error,
-    displayFormat = 'PPP',
+    displayFormat = DateFormat.FULL_DISPLAY,
     minYear = 1960,
     maxYear = new Date().getFullYear() + 10,
 }: DatePickerProps) {

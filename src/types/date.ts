@@ -35,3 +35,5 @@ export enum DateFormat {
     /** 10:06 AM */
     TIME_ONLY = 'hh:mm a',
 }
+
+export type DateFormatType = `${DateFormat}`
