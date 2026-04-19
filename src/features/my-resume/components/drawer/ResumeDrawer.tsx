@@ -49,10 +49,10 @@ export function ResumeDrawer({
     const isVertical = direction === 'right' || direction === 'left'
 
     const directionStyles = {
-        right: 'fixed right-0 top-0 bottom-0 mt-0 h-screen w-full sm:min-w-[25vw] rounded-none border-l z-10000',
-        left: 'fixed left-0 top-0 bottom-0 mt-0 h-screen w-full sm:w-[450px] rounded-none border-r z-10000',
-        bottom: 'fixed inset-x-0 bottom-0 mt-24 max-h-[96%] rounded-t-[10px] border-t z-10000',
-        top: 'fixed inset-x-0 top-0 mb-24 max-h-[96%] rounded-b-[10px] border-b z-10000',
+        right: 'fixed right-0 top-0 bottom-0 mt-0 h-screen w-full sm:min-w-[25vw] rounded-none border-l z-100',
+        left: 'fixed left-0 top-0 bottom-0 mt-0 h-screen w-full sm:w-[450px] rounded-none border-r z-100',
+        bottom: 'fixed inset-x-0 bottom-0 mt-24 max-h-[96%] rounded-t-[10px] border-t z-100',
+        top: 'fixed inset-x-0 top-0 mb-24 max-h-[96%] rounded-b-[10px] border-b z-100',
     }
 
     return (

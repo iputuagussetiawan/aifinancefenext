@@ -28,6 +28,7 @@ import {
     type IEducation,
 } from '@/features/education/types/education-type'
 import { Button } from '@/components/ui/button'
+import { UiFormDatePicker } from '@/components/ui/UiFormDatePicker'
 import { UiFormInput } from '@/components/ui/UiFormInput'
 
 import { SortableEducationCard } from '../SortableEducationCard'
@@ -62,7 +63,7 @@ export default function EducationForm() {
         defaultValues: { educations: [] },
     })
 
-    const { fields, append, remove, move } = useFieldArray({
+    const { fields, prepend, remove, move } = useFieldArray({
         control,
         name: 'educations',
     })
@@ -137,7 +138,7 @@ export default function EducationForm() {
                     type="button"
                     variant="outline"
                     onClick={() =>
-                        append({
+                        prepend({
                             schoolName: '',
                             degree: '',
                             fieldOfStudy: '', // Added missing field
@@ -146,7 +147,7 @@ export default function EducationForm() {
                             grade: '',
                             activities: '',
                             description: '',
-                            orderPosition: fields.length,
+                            orderPosition: 0, // Default position for new entries
                         })
                     }
                 >
@@ -199,16 +200,17 @@ export default function EducationForm() {
                                         error={errors.educations?.[index]?.grade}
                                     />
                                     <div className="grid grid-cols-2 gap-4">
-                                        <UiFormInput
-                                            type="text"
+                                        <UiFormDatePicker
                                             label="Start Date"
-                                            {...register(`educations.${index}.startDate`)}
+                                            name={`educations.${index}.startDate`}
+                                            control={control}
                                             error={errors.educations?.[index]?.startDate}
                                         />
-                                        <UiFormInput
-                                            type="text"
+
+                                        <UiFormDatePicker
                                             label="End Date (Optional)"
-                                            {...register(`educations.${index}.endDate`)}
+                                            name={`educations.${index}.endDate`}
+                                            control={control}
                                             error={errors.educations?.[index]?.endDate}
                                         />
                                     </div>
