@@ -6,9 +6,6 @@ import { AuthProvider } from '@/providers/auth-provider'
 import QueryProvider from '@/providers/query-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 
-// import { getCurrentUser } from '@/features/auth/actions/auth'
-// import { AuthProvider } from '@/features/auth/context/auth-context'
-import { getCurrentUser } from '@/features/user/actions/user'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
@@ -31,9 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     disableTransitionOnChange
                 >
                     <QueryProvider>
-                        <AuthProvider>
-                            <TooltipProvider>{children}</TooltipProvider>
-                        </AuthProvider>
+                        <TooltipProvider>{children}</TooltipProvider>
                     </QueryProvider>
                 </ThemeProvider>
                 <Toaster />

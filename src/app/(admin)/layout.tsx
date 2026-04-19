@@ -1,3 +1,4 @@
+import { AuthProvider } from '@/providers/auth-provider'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 
 import { sessionService } from '@/features/session/services/session-service'
@@ -20,22 +21,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
     return (
         <HydrationBoundary state={dehydratedState}>
-            {/* 3. We can use Client Components (SidebarProvider, AppSidebar) 
-               directly inside a Server Component. 
-            */}
-            <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-                        <div className="flex items-center gap-2">
-                            <SidebarTrigger className="-ml-1" />
-                            <Separator orientation="vertical" className="mr-2 h-4" />
-                            <DynamicBreadcrumbs />
-                        </div>
-                    </header>
-                    <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
-                </SidebarInset>
-            </SidebarProvider>
+            <AuthProvider>
+                <SidebarProvider>
+                    <AppSidebar />
+                    <SidebarInset>
+                        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                            <div className="flex items-center gap-2">
+                                <SidebarTrigger className="-ml-1" />
+                                <Separator orientation="vertical" className="mr-2 h-4" />
+                                <DynamicBreadcrumbs />
+                            </div>
+                        </header>
+                        <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </AuthProvider>
         </HydrationBoundary>
     )
 }
