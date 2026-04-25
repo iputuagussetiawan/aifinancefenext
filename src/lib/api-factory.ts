@@ -1,6 +1,12 @@
 // File: lib/api-factory.ts
 import { AUTH_COOKIE_NAME } from './constants'
 
+// Tambahkan tipe untuk params agar lebih aman
+type ApiOptions = RequestInit & {
+    next?: NextFetchRequestConfig
+    params?: Record<string, string | number | boolean | undefined> // Tambahkan ini
+}
+
 class FetchFactory {
     private async getRequestConfig(): Promise<Record<string, string>> {
         const headers: Record<string, string> = {
@@ -8,7 +14,6 @@ class FetchFactory {
             'Content-Type': 'application/json',
         }
 
-        // 🛡️ Check if we are on the Server
         if (typeof window === 'undefined') {
             const { cookies } = await import('next/headers')
             const cookieStore = await cookies()
@@ -17,16 +22,13 @@ class FetchFactory {
             if (token) headers['Authorization'] = `Bearer ${token}`
             headers['Cookie'] = cookieStore.toString()
         }
-        // 🛡️ If we are on the Client, the browser automatically sends cookies
-        // if we set { credentials: 'include' } or if the API is on the same domain.
-        // If you store token in localStorage, get it here.
 
         return headers
     }
 
     async API<T>(
         endpoint: string,
-        options: RequestInit & { next?: NextFetchRequestConfig } = {},
+        options: ApiOptions = {}, // Gunakan tipe ApiOptions
     ): Promise<T> {
         const apiBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL
         const defaultHeaders = await this.getRequestConfig()
@@ -36,27 +38,38 @@ class FetchFactory {
             ...(options.headers as Record<string, string>),
         }
 
-        // Same FormData logic as before
         if (options.body instanceof FormData) {
             delete mergedHeaders['Content-Type']
         }
 
-        const url = `${apiBaseUrl}${endpoint}`
+        // --- PERBAIKAN LOGIKA PARAMS DI SINI ---
+        let fullUrl = `${apiBaseUrl}${endpoint}`
 
-        const response = await fetch(url, {
+        if (options.params) {
+            const searchParams = new URLSearchParams()
+
+            Object.entries(options.params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    searchParams.append(key, value.toString())
+                }
+            })
+
+            const queryString = searchParams.toString()
+            if (queryString) {
+                // Cek apakah endpoint sudah punya tanda tanya (?) atau belum
+                fullUrl += fullUrl.includes('?') ? `&${queryString}` : `?${queryString}`
+            }
+        }
+        // ---------------------------------------
+
+        const response = await fetch(fullUrl, {
             ...options,
             headers: mergedHeaders,
-            // Important for client-side cookie forwarding
             credentials: options.credentials || 'include',
         })
 
-        console.log(response.status)
-
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}))
-
-            console.log(response.status)
-
             throw new Error(errorData.message || `API Error ${response.status}`)
         }
 
