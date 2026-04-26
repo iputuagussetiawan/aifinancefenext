@@ -6,14 +6,17 @@ import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { useInstitution } from '@/features/institution/hooks/use-institution'
 import { Button } from '@/components/ui/button'
 import { UiFormAutoSuggest } from '@/components/ui/UiFormAutoSuggest'
 
-// 1. Update Schema: Sekarang skill adalah string (Single Input)
 const formSchema = z.object({
+    institution: z.string().min(1, 'Harap pilih institusi'),
     skill: z.string().min(1, 'Harap pilih atau ketik keahlian'),
     assignedUser: z.string().min(1, 'Harap pilih user'),
 })
+
+type FormValues = z.infer<typeof formSchema>
 
 const SKILLS = [
     { id: 1, name: 'React JS', level: 'Advanced' },
@@ -28,25 +31,28 @@ const USERS = [
 ]
 
 export default function RecruitmentForm() {
+    const { institutions, isLoading } = useInstitution()
+
     const {
         register,
         handleSubmit,
         setValue,
         watch,
         formState: { errors, isSubmitting },
-    } = useForm<z.infer<typeof formSchema>>({
+    } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            institution: '',
             skill: '',
             assignedUser: '',
         },
     })
 
-    // Watch values
+    const selectedInstitution = watch('institution')
     const selectedSkill = watch('skill')
-    const selectedUserName = watch('assignedUser')
+    const selectedUser = watch('assignedUser')
 
-    const onSubmit = (data: z.infer<typeof formSchema>) => {
+    const onSubmit = (data: FormValues) => {
         console.log('Submit Data:', data)
     }
 
@@ -55,16 +61,33 @@ export default function RecruitmentForm() {
             onSubmit={handleSubmit(onSubmit)}
             className="bg-card max-w-md space-y-6 rounded-xl border p-6 shadow-sm"
         >
-            {/* 1. SINGLE INPUT (SKILL) */}
+            {/* Institution */}
+            <UiFormAutoSuggest
+                {...register('institution')}
+                label="Nama Institusi"
+                placeholder="Ketik nama institusi..."
+                items={institutions}
+                error={errors.institution}
+                value={selectedInstitution}
+                onValueChange={(val) => setValue('institution', val, { shouldValidate: true })}
+                onSelect={(item) => setValue('institution', item.name, { shouldValidate: true })}
+                getSearchValue={(item) => item.name}
+                renderItem={(item) => (
+                    <div className="flex flex-col py-1">
+                        <span className="text-sm font-medium">{item.name}</span>
+                        <span className="text-muted-foreground text-[10px]">{item.location}</span>
+                    </div>
+                )}
+            />
+
+            {/* Skill */}
             <UiFormAutoSuggest
                 {...register('skill')}
-                // Properti 'multiple' dan 'onRemove' dihapus
                 label="Keahlian Utama"
                 placeholder="Ketik atau pilih skill..."
                 items={SKILLS}
                 error={errors.skill}
                 value={selectedSkill}
-                // Gunakan onValueChange agar user bisa mengetik teks bebas
                 onValueChange={(val) => setValue('skill', val, { shouldValidate: true })}
                 onSelect={(item) => setValue('skill', item.name, { shouldValidate: true })}
                 getSearchValue={(item) => item.name}
@@ -76,14 +99,14 @@ export default function RecruitmentForm() {
                 )}
             />
 
-            {/* 2. SINGLE INPUT (USER) */}
+            {/* Assigned User */}
             <UiFormAutoSuggest
                 {...register('assignedUser')}
                 label="Penanggung Jawab"
                 placeholder="Pilih staff..."
                 items={USERS}
                 error={errors.assignedUser}
-                value={selectedUserName}
+                value={selectedUser}
                 onValueChange={(val) => setValue('assignedUser', val, { shouldValidate: true })}
                 onSelect={(user) => setValue('assignedUser', user.name, { shouldValidate: true })}
                 getSearchValue={(user) => user.name}
@@ -102,7 +125,7 @@ export default function RecruitmentForm() {
                 )}
             />
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
+            <Button type="submit" disabled={isSubmitting || isLoading} className="w-full">
                 {isSubmitting ? (
                     <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

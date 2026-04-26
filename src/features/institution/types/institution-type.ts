@@ -23,4 +23,4 @@ export type IInstitution = IInstitutionDTO & {
     updatedAt: string
 }
 
-export type InstitutionResponse = ApiResponse<IInstitution>
+export type InstitutionResponse = ApiResponse<IInstitution[]>
