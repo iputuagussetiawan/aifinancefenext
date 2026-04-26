@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { useInstitution } from '@/features/institution/hooks/use-institution'
+import { InstitutionAutoSuggest } from '@/features/institution/components/InstitutionAutoSuggest'
 import { Button } from '@/components/ui/button'
 import { UiFormAutoSuggest } from '@/components/ui/UiFormAutoSuggest'
 
@@ -31,8 +31,6 @@ const USERS = [
 ]
 
 export default function RecruitmentForm() {
-    const { institutions, isLoading } = useInstitution()
-
     const {
         register,
         handleSubmit,
@@ -48,7 +46,6 @@ export default function RecruitmentForm() {
         },
     })
 
-    const selectedInstitution = watch('institution')
     const selectedSkill = watch('skill')
     const selectedUser = watch('assignedUser')
 
@@ -61,23 +58,12 @@ export default function RecruitmentForm() {
             onSubmit={handleSubmit(onSubmit)}
             className="bg-card max-w-md space-y-6 rounded-xl border p-6 shadow-sm"
         >
-            {/* Institution */}
-            <UiFormAutoSuggest
-                {...register('institution')}
-                label="Nama Institusi"
-                placeholder="Ketik nama institusi..."
-                items={institutions}
+            {/* Institution — hook is handled inside the component */}
+            <InstitutionAutoSuggest
+                value={watch('institution')}
                 error={errors.institution}
-                value={selectedInstitution}
                 onValueChange={(val) => setValue('institution', val, { shouldValidate: true })}
-                onSelect={(item) => setValue('institution', item.name, { shouldValidate: true })}
-                getSearchValue={(item) => item.name}
-                renderItem={(item) => (
-                    <div className="flex flex-col py-1">
-                        <span className="text-sm font-medium">{item.name}</span>
-                        <span className="text-muted-foreground text-[10px]">{item.location}</span>
-                    </div>
-                )}
+                onSelect={(val) => setValue('institution', val, { shouldValidate: true })}
             />
 
             {/* Skill */}
@@ -125,7 +111,7 @@ export default function RecruitmentForm() {
                 )}
             />
 
-            <Button type="submit" disabled={isSubmitting || isLoading} className="w-full">
+            <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? (
                     <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
