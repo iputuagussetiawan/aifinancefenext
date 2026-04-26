@@ -1,18 +1,18 @@
-// File: hooks/use-user.ts
+// hooks/use-institution.ts
 import { useQuery } from '@tanstack/react-query'
 
-import { languageService } from '../services/institution-service'
-import type { ILanguageResponse } from '../types/institution-type'
+import { institutionService } from '../services/institution-service'
+import type { InstitutionResponse } from '../types/institution-type'
 
-export function useLanguage(page: number = 1, limit: number = 1) {
-    const { data, isLoading, isError, error } = useQuery<ILanguageResponse>({
-        queryKey: ['all-language'],
+export function useInstitution() {
+    const { data, isLoading, isError, error } = useQuery<InstitutionResponse>({
+        queryKey: ['all-institution'],
         staleTime: 1000 * 60 * 5,
-        queryFn: () => languageService.getAll(page, limit),
+        queryFn: () => institutionService.getAll(),
     })
+
     return {
-        languages: data?.data ?? [],
-        pagination: data?.meta,
+        institutions: data?.data ?? [],
         isLoading,
         isError,
         error,

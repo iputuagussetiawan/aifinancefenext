@@ -5,14 +5,10 @@ import { api } from '@/lib/api-factory'
 import type { IInstitutionDTO, InstitutionResponse } from '../types/institution-type'
 
 export const institutionService = {
-    getAll: (page: number = 1, limit: number = 10) =>
+    getAll: () =>
         api.API<InstitutionResponse>('/api/institution', {
             method: 'GET',
             cache: 'no-store',
-            params: {
-                page: page.toString(),
-                limit: limit.toString(),
-            },
         }),
     create: (data: IInstitutionDTO) =>
         api.API<InstitutionResponse>('/api/institution', {

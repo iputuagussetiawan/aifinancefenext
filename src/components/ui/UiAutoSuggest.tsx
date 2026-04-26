@@ -116,5 +116,4 @@ export const AutoSuggest = React.forwardRef(AutoSuggestInner) as <
 >(
     props: AutoSuggestProps<T> & { ref?: React.ForwardedRef<HTMLInputElement> },
 ) => React.ReactElement
-
 ;(AutoSuggest as any).displayName = 'AutoSuggest'
