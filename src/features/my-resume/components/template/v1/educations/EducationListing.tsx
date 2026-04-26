@@ -7,12 +7,11 @@ import EducationSkeleton from './EducationSkeleton'
 
 const EducationListing = () => {
     const { data, isLoading } = useAuth()
+    const educationList: IEducation[] = data?.user.educations || []
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).getFullYear()
     }
-
-    const educationList: IEducation[] = data?.user.educations || []
 
     return (
         <div className="mb-10">

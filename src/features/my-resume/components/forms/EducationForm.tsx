@@ -32,6 +32,7 @@ import { InstitutionAutoSuggest } from '@/features/institution/components/Instit
 import { Button } from '@/components/ui/button'
 import { UiFormDatePicker } from '@/components/ui/UiFormDatePicker'
 import { UiFormInput } from '@/components/ui/UiFormInput'
+import useAuth from '@/hooks/use-auth'
 
 import { SortableEducationCard } from '../SortableEducationCard'
 
@@ -48,11 +49,8 @@ export default function EducationForm() {
         }),
     )
 
-    const { data: response, isLoading } = useQuery({
-        queryKey: ['education'],
-        queryFn: educationService.get,
-    })
-
+    const { data, isLoading: isLoading } = useAuth()
+    const response: IEducation[] = data?.user.educations || []
     const {
         watch,
         register,
@@ -72,8 +70,8 @@ export default function EducationForm() {
     })
 
     React.useEffect(() => {
-        if (response?.data) {
-            const formatted = [...response.data]
+        if (response) {
+            const formatted = [...response]
                 .sort((a, b) => (a.orderPosition ?? 0) - (b.orderPosition ?? 0))
                 .map((edu: IEducation) => ({
                     ...edu,
@@ -87,7 +85,7 @@ export default function EducationForm() {
         mutationFn: (educations: EducationInputType[]) => educationService.updateAll(educations),
         onSuccess: () => {
             toast.success('Education history updated')
-            queryClient.invalidateQueries({ queryKey: ['education'] })
+            queryClient.invalidateQueries({ queryKey: ['authUser'] })
         },
     })
 
@@ -137,6 +135,8 @@ export default function EducationForm() {
                     <p className="text-muted-foreground text-sm">Manage your academic history</p>
                 </div>
 
+                {/* <pre>{JSON.stringify(response, null, 2)}</pre> */}
+
                 <Button
                     type="button"
                     variant="outline"
@@ -182,7 +182,7 @@ export default function EducationForm() {
                                     {...register(`educations.${index}.orderPosition`)}
                                 />
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                    <InstitutionAutoSuggest
+                                    {/* <InstitutionAutoSuggest
                                         value={watch(`educations.${index}.schoolName`)}
                                         error={errors.educations?.[index]?.schoolName}
                                         onValueChange={(val) =>
@@ -195,12 +195,8 @@ export default function EducationForm() {
                                                 shouldValidate: true,
                                             })
                                         }
-                                    />
-                                    {/* <UiFormInput
-                                        label="School/University Name"
-                                        {...register(`educations.${index}.schoolName`)}
-                                        error={errors.educations?.[index]?.schoolName}
                                     /> */}
+
                                     <UiFormInput
                                         label="Degree"
                                         {...register(`educations.${index}.degree`)}
