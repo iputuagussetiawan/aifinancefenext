@@ -28,6 +28,7 @@ import {
     type EducationInputType,
     type IEducation,
 } from '@/features/education/types/education-type'
+import { InstitutionAutoSuggest } from '@/features/institution/components/InstitutionAutoSuggest'
 import { Button } from '@/components/ui/button'
 import { UiFormDatePicker } from '@/components/ui/UiFormDatePicker'
 import { UiFormInput } from '@/components/ui/UiFormInput'
@@ -53,6 +54,7 @@ export default function EducationForm() {
     })
 
     const {
+        watch,
         register,
         control,
         handleSubmit,
@@ -180,11 +182,25 @@ export default function EducationForm() {
                                     {...register(`educations.${index}.orderPosition`)}
                                 />
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                    <UiFormInput
+                                    <InstitutionAutoSuggest
+                                        value={watch(`educations.${index}.schoolName`)}
+                                        error={errors.educations?.[index]?.schoolName}
+                                        onValueChange={(val) =>
+                                            setValue(`educations.${index}.schoolName`, val, {
+                                                shouldValidate: true,
+                                            })
+                                        }
+                                        onSelect={(val) =>
+                                            setValue(`educations.${index}.schoolName`, val, {
+                                                shouldValidate: true,
+                                            })
+                                        }
+                                    />
+                                    {/* <UiFormInput
                                         label="School/University Name"
                                         {...register(`educations.${index}.schoolName`)}
                                         error={errors.educations?.[index]?.schoolName}
-                                    />
+                                    /> */}
                                     <UiFormInput
                                         label="Degree"
                                         {...register(`educations.${index}.degree`)}
