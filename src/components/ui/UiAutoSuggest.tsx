@@ -11,7 +11,7 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command'
-import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 interface AutoSuggestProps<T> {
@@ -39,88 +39,78 @@ const AutoSuggestInner = <T extends { id: string | number }>(
     ref: React.ForwardedRef<HTMLInputElement>,
 ) => {
     const [open, setOpen] = React.useState(false)
-    const containerRef = React.useRef<HTMLDivElement>(null)
 
-    // Filter items based on current input
     const filteredItems = items.filter((item) =>
         getSearchValue(item).toLowerCase().includes(value.toLowerCase()),
     )
 
     return (
-        <div ref={containerRef} className="relative">
+        <Popover open={open} onOpenChange={setOpen}>
             <Command
                 shouldFilter={false}
-                className="overflow-visible border-none! bg-transparent p-0 shadow-none! [&_div]:border-none!"
+                className="overflow-visible border-none! bg-transparent p-0 shadow-none!"
             >
-                <Popover open={open}>
-                    <PopoverAnchor asChild>
-                        <CommandInput
-                            ref={ref}
-                            placeholder={placeholder}
-                            value={value}
-                            onValueChange={(search) => {
-                                onValueChange(search)
-                                setOpen(search.length > 0)
-                            }}
-                            onFocus={() => {
-                                if (value.length > 0) setOpen(true)
-                            }}
-                            onBlur={(e) => {
-                                // Close only if focus moves outside container
-                                if (!containerRef.current?.contains(e.relatedTarget as Node)) {
-                                    setOpen(false)
-                                }
-                            }}
-                            className="border-none! ring-0! outline-hidden! focus:border-none!"
-                        />
-                    </PopoverAnchor>
+                <PopoverTrigger asChild>
+                    <CommandInput
+                        ref={ref}
+                        placeholder={placeholder}
+                        value={value}
+                        onValueChange={(search) => {
+                            onValueChange(search)
+                            setOpen(search.length > 0)
+                        }}
+                        onFocus={() => {
+                            if (value.length > 0) setOpen(true)
+                        }}
+                        className="border-none! ring-0! outline-hidden! focus:border-none!"
+                    />
+                </PopoverTrigger>
 
-                    <PopoverContent
-                        className="mt-1 w-[var(--radix-popover-trigger-width)] p-0"
-                        align="start"
-                        onOpenAutoFocus={(e) => e.preventDefault()}
-                        onInteractOutside={() => setOpen(false)}
-                    >
-                        <CommandList className="bg-popover rounded-lg border shadow-md">
-                            {filteredItems.length === 0 ? (
-                                <CommandEmpty className="text-muted-foreground py-2 text-center text-sm">
-                                    {emptyMessage}
-                                </CommandEmpty>
-                            ) : (
-                                <CommandGroup className="p-0">
-                                    {filteredItems.map((item) => (
-                                        <CommandItem
-                                            key={item.id}
-                                            value={getSearchValue(item)}
-                                            onSelect={() => {
-                                                onSelect(item)
-                                                setOpen(false)
-                                            }}
-                                            className="cursor-pointer"
-                                        >
-                                            <div className="flex w-full items-center justify-between">
-                                                <div className="flex flex-1 items-center gap-2">
-                                                    {renderItem(item)}
-                                                </div>
-                                                <Check
-                                                    className={cn(
-                                                        'h-4 w-4',
-                                                        value.toLowerCase() ===
-                                                            getSearchValue(item).toLowerCase()
-                                                            ? 'opacity-100'
-                                                            : 'opacity-0',
-                                                    )}
-                                                />
+                <PopoverContent
+                    className="z-1009999 mt-1 w-[var(--radix-popover-trigger-width)] p-0"
+                    align="start"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    onInteractOutside={() => setOpen(false)}
+                >
+                    <CommandList className="bg-popover rounded-lg border shadow-md">
+                        {filteredItems.length === 0 ? (
+                            <CommandEmpty className="text-muted-foreground py-2 text-center text-sm">
+                                {emptyMessage}
+                            </CommandEmpty>
+                        ) : (
+                            <CommandGroup className="p-0">
+                                {filteredItems.map((item) => (
+                                    <CommandItem
+                                        key={item.id}
+                                        value={getSearchValue(item)}
+                                        onSelect={() => {
+                                            onSelect(item)
+                                            setOpen(false)
+                                        }}
+                                        className="cursor-pointer"
+                                    >
+                                        <div className="flex w-full items-center justify-between">
+                                            <div className="flex flex-1 items-center gap-2">
+                                                {renderItem(item)}
                                             </div>
-                                        </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                            )}
-                        </CommandList>
-                    </PopoverContent>
-                </Popover>
+                                            <Check
+                                                className={cn(
+                                                    'h-4 w-4',
+                                                    value.toLowerCase() ===
+                                                        getSearchValue(item).toLowerCase()
+                                                        ? 'opacity-100'
+                                                        : 'opacity-0',
+                                                )}
+                                            />
+                                        </div>
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        )}
+                    </CommandList>
+                </PopoverContent>
             </Command>
-        </div>
+        </Popover>
     )
 }
 
