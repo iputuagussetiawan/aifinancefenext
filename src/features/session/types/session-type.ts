@@ -1,3 +1,5 @@
+import type { IEducation } from '@/features/education/types/education-type'
+
 export interface ISession {
     _id: string
     userId: string
@@ -47,6 +49,7 @@ export interface IUser {
     updatedAt: string | Date
 
     role: IRole
+    educations: IEducation[]
 }
 
 // This matches the response structure from your session/me service

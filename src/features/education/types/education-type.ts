@@ -1,5 +1,7 @@
 import * as z from 'zod'
 
+import type { IInstitution } from '@/features/institution/types/institution-type'
+
 export const educationValidation = z
     .object({
         schoolName: z.string().min(2, 'School name must be at least 2 characters'),
@@ -37,26 +39,14 @@ export type EducationDTO = z.infer<typeof educationValidation>
 
 export interface IEducation {
     _id: string
-    id: string // Virtual id from Mongoose
-    userId: string
-
-    // Academic Details
-    schoolName: string
+    institution: IInstitution | null
     degree: string
     fieldOfStudy: string
-
-    // Status & Dates
-    startDate: string // ISO Date String
+    startDate: string
     endDate: string | null
-
-    // Optional Content
-    grade?: string
-    activities?: string
-    description?: string
-
-    // Metadata
+    grade: string
+    description: string
     orderPosition: number
-    __v: number
     createdAt: string
     updatedAt: string
 }

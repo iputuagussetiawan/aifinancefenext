@@ -1,22 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { educationService } from '@/features/education/services/education-service'
 import type { IEducation } from '@/features/education/types/education-type'
+import useAuth from '@/hooks/use-auth'
 
 import EducationSkeleton from './EducationSkeleton'
 
 const EducationListing = () => {
-    const { data: educations, isLoading } = useQuery({
-        queryKey: ['educations'],
-        queryFn: educationService.get,
-    })
-    console.log('educations', educations)
+    const { data, isLoading } = useAuth()
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).getFullYear()
     }
 
-    const educationList = educations?.data || []
+    const educationList: IEducation[] = data?.user.educations || []
+
     return (
         <div className="mb-10">
             <h2
@@ -26,6 +23,7 @@ const EducationListing = () => {
                 Education
             </h2>
             <div className="mb-4 h-px w-full" style={{ backgroundColor: '#d1d5db' }}></div>
+
             {isLoading ? (
                 <EducationSkeleton />
             ) : educationList.length > 0 ? (
@@ -38,7 +36,7 @@ const EducationListing = () => {
                             {edu.degree}
                         </h3>
                         <p className="text-[9px]" style={{ color: '#4b5563' }}>
-                            {edu.schoolName} | {edu.fieldOfStudy}
+                            {edu.institution?.name ?? 'No Institution'} | {edu.fieldOfStudy}
                         </p>
                         <p className="text-[8px] font-medium" style={{ color: '#9ca3af' }}>
                             {formatDate(edu.startDate)} -{' '}
