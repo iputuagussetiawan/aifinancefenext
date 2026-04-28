@@ -170,6 +170,7 @@ export function UiDateRangePicker({
                         startMonth={new Date(2023, 0)}
                         endMonth={new Date(2100, 11)}
                         hidden={fromDate ? { before: fromDate } : undefined}
+                        disabled={fromDate ? { before: fromDate } : undefined}
                     />
                 </PopoverContent>
             </Popover>
