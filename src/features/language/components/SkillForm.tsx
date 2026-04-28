@@ -3,24 +3,32 @@
 import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import type { DateRange } from 'react-day-picker'
 import { Controller, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { InstitutionAutoSuggest } from '@/features/institution/components/InstitutionAutoSuggest'
 import { Button } from '@/components/ui/button'
+import { UiDatePicker } from '@/components/ui/UiDatePicker'
 import { UiDateRangePicker } from '@/components/ui/UiDateRangePicker'
 import { UiFormAutoSuggest } from '@/components/ui/UiFormAutoSuggest'
 import { UiSelect, type UiSelectItem } from '@/components/ui/UiSelect'
 
 // ─────────────────────────────────────────────
-// Schema
+// Schema - Ditambahkan field tanggal agar validasi sinkron
 // ─────────────────────────────────────────────
 
 const formSchema = z.object({
     institution: z.string().min(1, 'Harap pilih institusi'),
     skill: z.string().min(1, 'Harap pilih atau ketik keahlian'),
     assignedUsers: z.array(z.string()).min(1, 'Harap pilih minimal 1 anggota'),
+    birthDate: z.date({ required_error: 'Tanggal lahir wajib diisi' }),
+    recruitmentPeriod: z.object(
+        {
+            from: z.date(),
+            to: z.date(),
+        },
+        { required_error: 'Periode rekrutmen wajib diisi' },
+    ),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -49,15 +57,11 @@ const Frontend = [
     { id: 10, name: 'Lusi', role: 'Scrum Master', image: 'https://i.pravatar.cc/150?u=10' },
 ]
 
-// ✅ Extend UiSelectItem with your extra fields
-// This is what unlocks person.role and person.image inside render props
 type MemberItem = UiSelectItem & {
     role: string
     image: string
 }
 
-// ✅ Map outside component — no re-creation on every render
-// Drop the old `meta` field — render props handle display now
 const memberItems: MemberItem[] = Frontend.map((person) => ({
     id: String(person.id),
     label: person.name,
@@ -82,6 +86,7 @@ export default function RecruitmentForm() {
             institution: '',
             skill: '',
             assignedUsers: [],
+            // recruitmentPeriod & birthDate sengaja dikosongkan agar ditangani Zod
         },
     })
 
@@ -94,12 +99,15 @@ export default function RecruitmentForm() {
         console.log('Submit Data:', data)
     }
 
-    const [date, setDate] = React.useState<DateRange | undefined>()
+    // Perhitungan batasan umur 17 tahun
+    const minimumBirthDate = new Date(1950, 0, 1)
+    const maximumBirthDate = new Date()
+    maximumBirthDate.setFullYear(maximumBirthDate.getFullYear() - 17)
 
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="bg-card max-w-md space-y-6 rounded-xl border p-6 shadow-sm"
+            className="bg-card mx-auto max-w-md space-y-6 rounded-xl border p-6 shadow-sm"
         >
             {/* Institution */}
             <InstitutionAutoSuggest
@@ -130,13 +138,10 @@ export default function RecruitmentForm() {
             {/* Assigned Members */}
             <div className="space-y-1.5">
                 <label className="text-sm leading-none font-medium">Anggota Tim</label>
-
                 <Controller
                     control={control}
                     name="assignedUsers"
                     render={({ field }) => (
-                        // ✅ TypeScript infers T = MemberItem from items prop
-                        // so person.role and person.image are fully typed inside render props
                         <UiSelect
                             multiple
                             items={memberItems}
@@ -152,9 +157,9 @@ export default function RecruitmentForm() {
                                         alt={person.label}
                                         className="h-7 w-7 rounded-full object-cover"
                                     />
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col text-left">
                                         <span className="text-sm font-medium">{person.label}</span>
-                                        <span className="text-muted-foreground text-xs">
+                                        <span className="text-muted-foreground text-[10px]">
                                             {person.role}
                                         </span>
                                     </div>
@@ -167,35 +172,49 @@ export default function RecruitmentForm() {
                                         alt={person.label}
                                         className="h-4 w-4 rounded-full object-cover"
                                     />
-                                    <span className="text-xs">{person.label}</span>
+                                    <span className="text-[10px]">{person.label}</span>
                                 </div>
                             )}
-                            renderButtonLabel={(selected) =>
-                                selected.length === 0
-                                    ? 'Pilih anggota tim...'
-                                    : `${selected.length} anggota dipilih`
-                            }
                         />
                     )}
                 />
-
                 {errors.assignedUsers && (
                     <p className="text-destructive text-xs">{errors.assignedUsers.message}</p>
                 )}
-
-                {selectedPeople.length > 0 && (
-                    <p className="text-muted-foreground text-xs">
-                        Tim: {selectedPeople.map((p) => p.name).join(', ')}
-                    </p>
-                )}
             </div>
 
-            <UiDateRangePicker
-                label="Periode Rekrutmen"
-                required
-                value={date}
-                onChange={setDate}
-                placeholder="Pilih rentang waktu"
+            {/* Recruitment Period (Date Range) */}
+            <Controller
+                control={control}
+                name="recruitmentPeriod"
+                render={({ field }) => (
+                    <UiDateRangePicker
+                        label="Periode Rekrutmen"
+                        required
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={errors.recruitmentPeriod?.message}
+                        placeholder="Pilih rentang waktu"
+                    />
+                )}
+            />
+
+            {/* Birth Date (Single Date) */}
+            <Controller
+                control={control}
+                name="birthDate"
+                render={({ field }) => (
+                    <UiDatePicker
+                        label="Tanggal Lahir"
+                        required
+                        value={field.value}
+                        onChange={field.onChange}
+                        minDate={minimumBirthDate}
+                        maxDate={maximumBirthDate}
+                        error={errors.birthDate?.message}
+                        placeholder="Kapan kamu lahir?"
+                    />
+                )}
             />
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
