@@ -8,6 +8,7 @@ import * as z from 'zod'
 
 import { InstitutionAutoSuggest } from '@/features/institution/components/InstitutionAutoSuggest'
 import { Button } from '@/components/ui/button'
+import { AutoSuggest } from '@/components/ui/UiAutoSuggest'
 import { UiDatePicker } from '@/components/ui/UiDatePicker'
 import { UiDateRangePicker } from '@/components/ui/UiDateRangePicker'
 import { UiFormAutoSuggest } from '@/components/ui/UiFormAutoSuggest'
@@ -21,14 +22,17 @@ const formSchema = z.object({
     institution: z.string().min(1, 'Harap pilih institusi'),
     skill: z.string().min(1, 'Harap pilih atau ketik keahlian'),
     assignedUsers: z.array(z.string()).min(1, 'Harap pilih minimal 1 anggota'),
-    birthDate: z.date({ required_error: 'Tanggal lahir wajib diisi' }),
-    recruitmentPeriod: z.object(
-        {
+    companyId: z.string().optional().or(z.literal('')),
+    companyName: z.string().min(1, 'Harap ketik atau pilih perusahaan'),
+    birthDate: z.date(),
+    recruitmentPeriod: z
+        .object({
             from: z.date(),
             to: z.date(),
-        },
-        { required_error: 'Periode rekrutmen wajib diisi' },
-    ),
+        })
+        .refine((data) => data.from && data.to, {
+            message: 'Harap pilih rentang tanggal lengkap',
+        }),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -55,6 +59,20 @@ const Frontend = [
     { id: 8, name: 'Maya', role: 'Data Scientist', image: 'https://i.pravatar.cc/150?u=8' },
     { id: 9, name: 'Rian', role: 'Technical Writer', image: 'https://i.pravatar.cc/150?u=9' },
     { id: 10, name: 'Lusi', role: 'Scrum Master', image: 'https://i.pravatar.cc/150?u=10' },
+]
+
+interface Company {
+    id: string
+    name: string
+    sector: string
+}
+
+const COMPANIES: Company[] = [
+    { id: '101', name: 'Google', sector: 'Technology' },
+    { id: '102', name: 'Microsoft', sector: 'Software' },
+    { id: '103', name: 'Amazon', sector: 'E-commerce' },
+    { id: '104', name: 'Netflix', sector: 'Entertainment' },
+    { id: '105', name: 'Tesla', sector: 'Automotive' },
 ]
 
 type MemberItem = UiSelectItem & {
@@ -86,6 +104,7 @@ export default function RecruitmentForm() {
             institution: '',
             skill: '',
             assignedUsers: [],
+            companyName: '',
             // recruitmentPeriod & birthDate sengaja dikosongkan agar ditangani Zod
         },
     })
@@ -216,6 +235,49 @@ export default function RecruitmentForm() {
                     />
                 )}
             />
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium">Perusahaan Tujuan</label>
+
+                <Controller
+                    name="companyName"
+                    control={control}
+                    render={({ field }) => (
+                        <AutoSuggest<Company>
+                            {...field} // Menghubungkan value, onChange, onBlur, dan ref
+                            items={COMPANIES}
+                            placeholder="Cari perusahaan..."
+                            emptyMessage="Perusahaan tidak ditemukan."
+                            // Memberitahu komponen field mana yang dijadikan kunci pencarian
+                            getSearchValue={(item) => item.name}
+                            // Mengatur apa yang terjadi saat item diklik
+                            onSelect={(item) => {
+                                // SET KEDUANYA DI SINI
+                                setValue('companyName', item.name, { shouldValidate: true })
+                                setValue('companyId', String(item.id), { shouldValidate: true })
+                            }}
+                            // Mengatur update value saat user mengetik (pencarian manual)
+                            onValueChange={(val) => {
+                                field.onChange(val)
+                                setValue('companyId', '')
+                            }}
+                            // Tampilan item di dalam dropdown
+                            renderItem={(item) => (
+                                <div className="flex flex-col text-left">
+                                    <span className="text-sm font-medium">{item.name}</span>
+                                    <span className="text-muted-foreground text-xs">
+                                        {item.sector}
+                                    </span>
+                                </div>
+                            )}
+                        />
+                    )}
+                />
+
+                {errors.companyName && (
+                    <p className="text-destructive text-xs">{errors.companyName.message}</p>
+                )}
+            </div>
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? (
