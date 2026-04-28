@@ -3,11 +3,13 @@
 import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import type { DateRange } from 'react-day-picker'
 import { Controller, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { InstitutionAutoSuggest } from '@/features/institution/components/InstitutionAutoSuggest'
 import { Button } from '@/components/ui/button'
+import { UiDateRangePicker } from '@/components/ui/UiDateRangePicker'
 import { UiFormAutoSuggest } from '@/components/ui/UiFormAutoSuggest'
 import { UiSelect, type UiSelectItem } from '@/components/ui/UiSelect'
 
@@ -91,6 +93,8 @@ export default function RecruitmentForm() {
     const onSubmit = (data: FormValues) => {
         console.log('Submit Data:', data)
     }
+
+    const [date, setDate] = React.useState<DateRange | undefined>()
 
     return (
         <form
@@ -185,6 +189,14 @@ export default function RecruitmentForm() {
                     </p>
                 )}
             </div>
+
+            <UiDateRangePicker
+                label="Periode Rekrutmen"
+                required
+                value={date}
+                onChange={setDate}
+                placeholder="Pilih rentang waktu"
+            />
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? (
