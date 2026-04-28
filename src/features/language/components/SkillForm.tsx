@@ -3,20 +3,29 @@
 import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { InstitutionAutoSuggest } from '@/features/institution/components/InstitutionAutoSuggest'
 import { Button } from '@/components/ui/button'
 import { UiFormAutoSuggest } from '@/components/ui/UiFormAutoSuggest'
+import { UiSelect, type UiSelectItem } from '@/components/ui/UiSelect'
+
+// ─────────────────────────────────────────────
+// Schema
+// ─────────────────────────────────────────────
 
 const formSchema = z.object({
     institution: z.string().min(1, 'Harap pilih institusi'),
     skill: z.string().min(1, 'Harap pilih atau ketik keahlian'),
-    assignedUser: z.string().min(1, 'Harap pilih user'),
+    assignedUsers: z.array(z.string()).min(1, 'Harap pilih minimal 1 anggota'),
 })
 
 type FormValues = z.infer<typeof formSchema>
+
+// ─────────────────────────────────────────────
+// Data
+// ─────────────────────────────────────────────
 
 const SKILLS = [
     { id: 1, name: 'React JS', level: 'Advanced' },
@@ -25,29 +34,59 @@ const SKILLS = [
     { id: 4, name: 'TypeScript', level: 'Expert' },
 ]
 
-const USERS = [
-    { id: 1, name: 'Joko', role: 'Frontend', image: 'https://i.pravatar.cc/150?u=1' },
-    { id: 2, name: 'Siti', role: 'Designer', image: 'https://i.pravatar.cc/150?u=2' },
+const Frontend = [
+    { id: 1, name: 'Joko', role: 'Frontend Developer', image: 'https://i.pravatar.cc/150?u=1' },
+    { id: 2, name: 'Siti', role: 'UI/UX Designer', image: 'https://i.pravatar.cc/150?u=2' },
+    { id: 3, name: 'Budi', role: 'Backend Developer', image: 'https://i.pravatar.cc/150?u=3' },
+    { id: 4, name: 'Rina', role: 'Product Manager', image: 'https://i.pravatar.cc/150?u=4' },
+    { id: 5, name: 'Andi', role: 'Mobile Developer', image: 'https://i.pravatar.cc/150?u=5' },
+    { id: 6, name: 'Dewi', role: 'QA Engineer', image: 'https://i.pravatar.cc/150?u=6' },
+    { id: 7, name: 'Eko', role: 'DevOps Engineer', image: 'https://i.pravatar.cc/150?u=7' },
+    { id: 8, name: 'Maya', role: 'Data Scientist', image: 'https://i.pravatar.cc/150?u=8' },
+    { id: 9, name: 'Rian', role: 'Technical Writer', image: 'https://i.pravatar.cc/150?u=9' },
+    { id: 10, name: 'Lusi', role: 'Scrum Master', image: 'https://i.pravatar.cc/150?u=10' },
 ]
+
+// ✅ Extend UiSelectItem with your extra fields
+// This is what unlocks person.role and person.image inside render props
+type MemberItem = UiSelectItem & {
+    role: string
+    image: string
+}
+
+// ✅ Map outside component — no re-creation on every render
+// Drop the old `meta` field — render props handle display now
+const memberItems: MemberItem[] = Frontend.map((person) => ({
+    id: String(person.id),
+    label: person.name,
+    role: person.role,
+    image: person.image,
+}))
+
+// ─────────────────────────────────────────────
+// Form
+// ─────────────────────────────────────────────
 
 export default function RecruitmentForm() {
     const {
-        register,
         handleSubmit,
         setValue,
         watch,
+        control,
         formState: { errors, isSubmitting },
     } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             institution: '',
             skill: '',
-            assignedUser: '',
+            assignedUsers: [],
         },
     })
 
     const selectedSkill = watch('skill')
-    const selectedUser = watch('assignedUser')
+    const selectedUsers = watch('assignedUsers')
+
+    const selectedPeople = Frontend.filter((p) => selectedUsers.includes(String(p.id)))
 
     const onSubmit = (data: FormValues) => {
         console.log('Submit Data:', data)
@@ -58,7 +97,7 @@ export default function RecruitmentForm() {
             onSubmit={handleSubmit(onSubmit)}
             className="bg-card max-w-md space-y-6 rounded-xl border p-6 shadow-sm"
         >
-            {/* Institution — hook is handled inside the component */}
+            {/* Institution */}
             <InstitutionAutoSuggest
                 value={watch('institution')}
                 error={errors.institution}
@@ -68,7 +107,6 @@ export default function RecruitmentForm() {
 
             {/* Skill */}
             <UiFormAutoSuggest
-                {...register('skill')}
                 label="Keahlian Utama"
                 placeholder="Ketik atau pilih skill..."
                 items={SKILLS}
@@ -85,31 +123,68 @@ export default function RecruitmentForm() {
                 )}
             />
 
-            {/* Assigned User */}
-            <UiFormAutoSuggest
-                {...register('assignedUser')}
-                label="Penanggung Jawab"
-                placeholder="Pilih staff..."
-                items={USERS}
-                error={errors.assignedUser}
-                value={selectedUser}
-                onValueChange={(val) => setValue('assignedUser', val, { shouldValidate: true })}
-                onSelect={(user) => setValue('assignedUser', user.name, { shouldValidate: true })}
-                getSearchValue={(user) => user.name}
-                renderItem={(user) => (
-                    <div className="flex items-center gap-3 py-1">
-                        <img
-                            src={user.image}
-                            alt={user.name}
-                            className="bg-muted size-8 rounded-full border"
+            {/* Assigned Members */}
+            <div className="space-y-1.5">
+                <label className="text-sm leading-none font-medium">Anggota Tim</label>
+
+                <Controller
+                    control={control}
+                    name="assignedUsers"
+                    render={({ field }) => (
+                        // ✅ TypeScript infers T = MemberItem from items prop
+                        // so person.role and person.image are fully typed inside render props
+                        <UiSelect
+                            multiple
+                            items={memberItems}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Pilih anggota tim..."
+                            searchPlaceholder="Cari nama..."
+                            emptyMessage="Anggota tidak ditemukan."
+                            renderItem={(person) => (
+                                <div className="flex items-center gap-2">
+                                    <img
+                                        src={person.image}
+                                        alt={person.label}
+                                        className="h-7 w-7 rounded-full object-cover"
+                                    />
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-medium">{person.label}</span>
+                                        <span className="text-muted-foreground text-xs">
+                                            {person.role}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                            renderBadge={(person) => (
+                                <div className="flex items-center gap-1">
+                                    <img
+                                        src={person.image}
+                                        alt={person.label}
+                                        className="h-4 w-4 rounded-full object-cover"
+                                    />
+                                    <span className="text-xs">{person.label}</span>
+                                </div>
+                            )}
+                            renderButtonLabel={(selected) =>
+                                selected.length === 0
+                                    ? 'Pilih anggota tim...'
+                                    : `${selected.length} anggota dipilih`
+                            }
                         />
-                        <div className="flex flex-col">
-                            <span className="text-sm font-medium">{user.name}</span>
-                            <span className="text-muted-foreground text-[10px]">{user.role}</span>
-                        </div>
-                    </div>
+                    )}
+                />
+
+                {errors.assignedUsers && (
+                    <p className="text-destructive text-xs">{errors.assignedUsers.message}</p>
                 )}
-            />
+
+                {selectedPeople.length > 0 && (
+                    <p className="text-muted-foreground text-xs">
+                        Tim: {selectedPeople.map((p) => p.name).join(', ')}
+                    </p>
+                )}
+            </div>
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? (

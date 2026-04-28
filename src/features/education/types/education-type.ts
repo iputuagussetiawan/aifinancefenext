@@ -4,20 +4,15 @@ import type { IInstitution } from '@/features/institution/types/institution-type
 
 export const educationValidation = z
     .object({
-        schoolName: z.string().min(2, 'School name must be at least 2 characters'),
+        // institution:z.string(),
+        institutionName: z.string().min(2, 'School name must be at least 2 characters'),
         degree: z.string().min(2, 'Degree must be at least 2 characters'),
         fieldOfStudy: z.string().min(2, 'Field of study must be at least 2 characters'),
-
-        // Start Date: Coerce handles strings from <input type="date" />
         startDate: z.string(),
-
-        // End Date: Converts empty strings to null, then validates as a Date
         endDate: z.string(),
-
         grade: z.string().optional(),
         activities: z.string().optional(),
         description: z.string().optional(),
-
         orderPosition: z.number().int(),
     })
     .refine(
@@ -38,8 +33,9 @@ export type EducationInputType = z.infer<typeof educationValidation>
 export type EducationDTO = z.infer<typeof educationValidation>
 
 export interface IEducation {
-    _id: string
+    id: string
     institution: IInstitution | null
+    institutionName: string
     degree: string
     fieldOfStudy: string
     startDate: string

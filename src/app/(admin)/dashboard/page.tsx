@@ -9,7 +9,7 @@ export default async function DashboardPage() {
         <div>
             <h1>Dashbaord 11</h1>
             <h3>Debug User Output:</h3>
-            <LanguageSelector multiple={true} />
+            <LanguageSelector />
             <AutoSuggestLanguageInput />
             <SkillForm />
         </div>

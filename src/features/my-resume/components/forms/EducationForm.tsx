@@ -142,7 +142,7 @@ export default function EducationForm() {
                     variant="outline"
                     onClick={() =>
                         prepend({
-                            schoolName: '',
+                            institutionName: '',
                             degree: '',
                             fieldOfStudy: '', // Added missing field
                             startDate: '',
@@ -182,21 +182,20 @@ export default function EducationForm() {
                                     {...register(`educations.${index}.orderPosition`)}
                                 />
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                    {/* <InstitutionAutoSuggest
-                                        value={watch(`educations.${index}.schoolName`)}
-                                        error={errors.educations?.[index]?.schoolName}
+                                    <InstitutionAutoSuggest
+                                        value={watch(`educations.${index}.institutionName`)}
+                                        error={errors.educations?.[index]?.institutionName}
                                         onValueChange={(val) =>
-                                            setValue(`educations.${index}.schoolName`, val, {
+                                            setValue(`educations.${index}.institutionName`, val, {
                                                 shouldValidate: true,
                                             })
                                         }
                                         onSelect={(val) =>
-                                            setValue(`educations.${index}.schoolName`, val, {
+                                            setValue(`educations.${index}.institutionName`, val, {
                                                 shouldValidate: true,
                                             })
                                         }
-                                    /> */}
-
+                                    />
                                     <UiFormInput
                                         label="Degree"
                                         {...register(`educations.${index}.degree`)}
