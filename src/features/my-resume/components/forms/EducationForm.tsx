@@ -142,6 +142,7 @@ export default function EducationForm() {
                     variant="outline"
                     onClick={() =>
                         prepend({
+                            institution: '',
                             institutionName: '',
                             degree: '',
                             fieldOfStudy: '', // Added missing field
@@ -180,6 +181,10 @@ export default function EducationForm() {
                                 <input
                                     type="hidden"
                                     {...register(`educations.${index}.orderPosition`)}
+                                />
+                                <input
+                                    type="hidden"
+                                    {...register(`educations.${index}.institution`)}
                                 />
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <InstitutionAutoSuggest
