@@ -55,6 +55,7 @@ export default function MyResumeToolbar({
     const [isOpenPersonalDrawer, setIsOpenPersonalDrawer] = useState(false)
     const [isOpenAboutDrawer, SetIsOpenAboutDrawer] = useState(false)
     const [isOpenEducationDrawer, setIsOpenEducationDrawer] = useState(false)
+    const [isOpenExperienceDrawer, setIsOpenExperienceDrawer] = useState(false)
 
     return (
         <>
@@ -154,7 +155,12 @@ export default function MyResumeToolbar({
                                             <GraduationCap className="mr-2 h-4 w-4" />
                                             <span>Educations</span>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="hover:cursor-pointer">
+                                        <DropdownMenuItem
+                                            onSelect={() => {
+                                                setIsOpenExperienceDrawer(true)
+                                            }}
+                                            className="hover:cursor-pointer"
+                                        >
                                             <Briefcase className="mr-2 h-4 w-4" />
                                             <span>Professional Experience</span>
                                         </DropdownMenuItem>
@@ -179,24 +185,6 @@ export default function MyResumeToolbar({
                                     </DropdownMenuGroup>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-
-                            {/* <Button
-                                onClick={onSave}
-                                disabled={isSaving}
-                                className="h-12 rounded-xl bg-blue-500 px-8 font-bold text-white transition-all hover:cursor-pointer hover:bg-blue-600"
-                            >
-                                {isSaving ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Saving...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="h-4 w-4" />
-                                        Save Changes
-                                    </>
-                                )}
-                            </Button> */}
                         </div>
                     ) : (
                         /* PREVIEW & DOWNLOAD (Shown only in Preview Mode) */
@@ -262,6 +250,19 @@ export default function MyResumeToolbar({
             >
                 <div className="grid gap-4">
                     <EducationForm />
+                </div>
+            </ResumeDrawer>
+
+            <ResumeDrawer
+                className="sm:min-w-[1400px]"
+                direction="right"
+                title="Experience"
+                open={isOpenExperienceDrawer}
+                onOpenChange={setIsOpenExperienceDrawer}
+            >
+                <div className="grid gap-4">
+                    <h3>Experiences</h3>
+                    {/* <EducationForm /> */}
                 </div>
             </ResumeDrawer>
         </>
