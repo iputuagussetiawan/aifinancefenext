@@ -27,7 +27,7 @@ const EducationListing = () => {
                 <EducationSkeleton />
             ) : educationList.length > 0 ? (
                 educationList.map((edu: IEducation) => (
-                    <div key={edu._id} className="mb-4">
+                    <div key={edu.id} className="mb-4">
                         <h3
                             className="text-[10px] font-bold uppercase"
                             style={{ color: '#1a1a1a' }}

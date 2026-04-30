@@ -4,7 +4,7 @@ import type { IInstitution } from '@/features/institution/types/institution-type
 
 export const educationValidation = z
     .object({
-        institution: z.string(),
+        institution: z.string().optional().or(z.literal('')),
         institutionName: z.string().min(2, 'School name must be at least 2 characters'),
         degree: z.string().min(2, 'Degree must be at least 2 characters'),
         fieldOfStudy: z.string().min(2, 'Field of study must be at least 2 characters'),

@@ -117,7 +117,7 @@ export default function EducationForm() {
             orderPosition: index,
         }))
         console.log('Submitting ordered educations:', orderedData)
-        mutate(orderedData)
+        // mutate(orderedData)
     }
 
     if (isLoading)
@@ -184,22 +184,34 @@ export default function EducationForm() {
                                 />
                                 <input
                                     type="hidden"
-                                    {...register(`educations.${index}.institution`)}
+                                    value={watch(`educations.${index}.institution`) ?? ''}
+                                    readOnly
                                 />
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <InstitutionAutoSuggest
                                         value={watch(`educations.${index}.institutionName`)}
                                         error={errors.educations?.[index]?.institutionName}
-                                        onValueChange={(val) =>
+                                        onValueChange={(val) => {
                                             setValue(`educations.${index}.institutionName`, val, {
                                                 shouldValidate: true,
                                             })
-                                        }
-                                        onSelect={(val) =>
-                                            setValue(`educations.${index}.institutionName`, val, {
+
+                                            setValue(`educations.${index}.institution`, '', {
                                                 shouldValidate: true,
                                             })
-                                        }
+                                        }}
+                                        onSelect={(val) => {
+                                            setValue(
+                                                `educations.${index}.institutionName`,
+                                                val.name,
+                                                {
+                                                    shouldValidate: true,
+                                                },
+                                            )
+                                            setValue(`educations.${index}.institution`, val.id, {
+                                                shouldValidate: true,
+                                            })
+                                        }}
                                     />
                                     <UiFormInput
                                         label="Degree"

@@ -6,11 +6,13 @@ import type { FieldError } from 'react-hook-form'
 import { useInstitution } from '@/features/institution/hooks/use-institution'
 import { UiFormAutoSuggest } from '@/components/ui/UiFormAutoSuggest'
 
+import type { IInstitution } from '../types/institution-type'
+
 interface InstitutionAutoSuggestProps {
     value: string
     error?: FieldError
     onValueChange: (val: string) => void
-    onSelect: (val: string) => void
+    onSelect: (val: IInstitution) => void
 }
 
 export function InstitutionAutoSuggest({
@@ -30,7 +32,7 @@ export function InstitutionAutoSuggest({
                 error={error}
                 value={value}
                 onValueChange={onValueChange}
-                onSelect={(item) => onSelect(item.name)}
+                onSelect={(item) => onSelect(item)}
                 getSearchValue={(item) => item.name}
                 renderItem={(item) => (
                     <div className="flex flex-col py-1">
