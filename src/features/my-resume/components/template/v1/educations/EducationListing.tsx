@@ -35,7 +35,7 @@ const EducationListing = () => {
                             {edu.degree}
                         </h3>
                         <p className="text-[9px]" style={{ color: '#4b5563' }}>
-                            {edu.institution?.name ?? 'No Institution'} | {edu.fieldOfStudy}
+                            {edu.institution?.name ?? edu.institutionName} | {edu.fieldOfStudy}
                         </p>
                         <p className="text-[8px] font-medium" style={{ color: '#9ca3af' }}>
                             {formatDate(edu.startDate)} -{' '}
