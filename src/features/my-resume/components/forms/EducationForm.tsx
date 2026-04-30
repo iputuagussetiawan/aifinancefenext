@@ -76,6 +76,10 @@ export default function EducationForm() {
                 .map((edu: IEducation) => ({
                     ...edu,
                     endDate: edu.endDate ?? undefined,
+                    institution:
+                        typeof edu.institution === 'object'
+                            ? (edu.institution?._id ?? edu.institution?.id ?? '')
+                            : (edu.institution ?? ''),
                 }))
             reset({ educations: formatted })
         }
@@ -115,9 +119,10 @@ export default function EducationForm() {
         const orderedData = data.educations.map((edu, index) => ({
             ...edu,
             orderPosition: index,
+            institution: edu.institution || undefined,
         }))
         console.log('Submitting ordered educations:', orderedData)
-        // mutate(orderedData)
+        mutate(orderedData)
     }
 
     if (isLoading)
@@ -184,8 +189,7 @@ export default function EducationForm() {
                                 />
                                 <input
                                     type="hidden"
-                                    value={watch(`educations.${index}.institution`) ?? ''}
-                                    readOnly
+                                    {...register(`educations.${index}.institution`)}
                                 />
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <InstitutionAutoSuggest
