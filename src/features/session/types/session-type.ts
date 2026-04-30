@@ -50,6 +50,7 @@ export interface IUser {
 
     role: IRole
     educations: IEducation[]
+    experiences: IEducation[]
 }
 
 // This matches the response structure from your session/me service
